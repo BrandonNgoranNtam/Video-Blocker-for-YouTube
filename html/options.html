@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="ExtName">Video Blocker for Youtube™</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/balloon.css">
+    <link rel="stylesheet" href="../css/options.css">
+</head>
+
+<body class="bg-yt-50 dark:bg-yt-900 text-yt-900 dark:text-yt-50 font-sans">
+
+    <!-- password confirmation dialog (when setting a new password) -->
+    <dialog id="password_confirm_dialog" animated class="min-w-[300px] w-1/2 p-4 text-yt-800 dark:text-yt-50 dark:bg-yt-700 backdrop:bg-yt-900 backdrop:opacity-30 rounded-lg text-base">
+        <button modal-close class="absolute top-1 right-1 w-8 h-8 text-sm opacity-75 hover:opacity-100">
+            <i class="fa fa-close"></i>
+        </button>
+
+        <h1 class="text-2xl font-semibold pb-4">⚠<span data-i18n="PasswordWarningTitle">Warning</span></h1>
+        <p data-i18n-innerHTML="PasswordWarningParagraph">Once the password is set, there is <b>NO</b> way to remind or recover it. Please ensure that you remember your password.</p>
+
+        <div class="pt-4">
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="confirmation_checkbox" option-control type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="PasswordWarningConfirmationCheckbox">I'm aware that there is no recovery option available for the password</span>
+            </label>
+        </div>
+
+        <menu class="pt-4 flex justify-end gap-2">
+            <button modal-close id="cancel" data-i18n="Cancel" class="bg-yt-100 dark:bg-yt-600 border py-1 px-2 border-yt-400 opacity-80 hover:opacity-100 active:opacity-50 shadow-sm dark:shadow-md shadow-yt-600 dark:shadow-yt-800">Cancel</button>
+            <button modal-submit id="continue" data-i18n="Continue" disable-when-option-unchecked="confirmation_checkbox" class="aria-disabled:opacity-50 aria-disabled:pointer-events-none text-yt-50 bg-blue-700 py-1 px-2 opacity-80 hover:opacity-100 active:opacity-50 shadow-sm dark:shadow-md shadow-yt-600 dark:shadow-yt-800">Continue</button>
+        </menu>
+    </dialog>
+
+    <!-- password request dialog -->
+    <dialog id="password_request_dialog" class="min-w-[300px] w-1/3 p-4 text-yt-800 dark:text-yt-50 dark:bg-yt-700 backdrop:bg-yt-900 backdrop:opacity-30 rounded-lg text-base">
+        <button id="close" modal-close class="absolute top-1 right-1 w-8 h-8 text-sm opacity-75 hover:opacity-100">
+            <i class="fa fa-close"></i>
+        </button>
+
+        <img src="../images/icon-128.png" class="w-20" data-i18n-alt="ExtName" alt="Video Blocker for YouTube™"></img>
+
+        <div class="pb-4">
+            <h2 data-i18n="PasswordModalTitle" class="text-xl font-medium">Password protected</h2>
+            <p data-i18n="EnterPassword" class="text-base opacity-90 dark:opacity-60">Please enter your password to continue.</p>
+        </div>
+
+        <div class="password-input-container flex items-center">
+            <input 
+                id="ytb_modal_password" 
+                type="password" 
+                data-i18n-placeholder="PasswordInputPlaceholder"
+                placeholder="Enter your password"
+                class="w-full h-8 text-yt-900 dark:text-yt-50 bg-yt-50 dark:bg-yt-800 border border-yt-700 outline-none rounded-lg pl-2 pr-8">
+            </input>
+            <button id="password_toggle" class="absolute right-6">
+                <i class="fa fa-eye"></i>
+            </button>
+        </div>
+
+        <div id="password_fail_message" data-i18n="InvalidPassword" class="text-red-600 font-semibold dark:font-normal dark:text-red-400 pt-2"></div>
+
+        <div class="pt-2" id="keep_unlocked_container">
+
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="keep_unlocked" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span id="keep_unlocked_label" data-i18n="KeepUnlockedCheckbox">Keep unlocked for some time</span>
+            </label>
+
+        </div>
+
+        <menu class="pt-4 flex justify-end gap-2">
+            <button id="cancel" data-i18n="Cancel" class="bg-yt-100 dark:bg-yt-600 border py-1 px-2 border-yt-400 opacity-80 hover:opacity-100 active:opacity-50 shadow-sm dark:shadow-md shadow-yt-600 dark:shadow-yt-800">Cancel</button>
+            <button id="continue" data-i18n="Continue" class="text-yt-50 bg-blue-700 py-1 px-2 opacity-80 hover:opacity-100 active:opacity-50 shadow-sm dark:shadow-md shadow-yt-600 dark:shadow-yt-800">Continue</button>
+        </menu>
+    </dialog>
+
+    <!-- reset default options dialog -->
+    <dialog id="reset_options_dialog" animated class="min-w-[300px] w-1/2 p-4 bg-yt-50 text-yt-800 dark:text-yt-50 dark:bg-yt-700 backdrop:bg-yt-900 backdrop:opacity-30 rounded-lg text-base">
+        <button modal-close class="absolute top-1 right-1 w-8 h-8 text-sm opacity-75 hover:opacity-100">
+            <i class="fa fa-close"></i>
+        </button>
+
+        <div class="pb-4">
+            <h2 data-i18n="ResetSettingModalTitle" class="text-xl font-medium">Reset settings back to default</h2>
+            <p data-i18n="ResetSettingModalSubTitle" class="text-base opacity-90 dark:opacity-60">What type of settings should be resetted to default?</p>
+        </div>
+
+        <div class="pt-4 grid gap-1 grid-cols-2">
+            
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_general" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="GeneralSettings">General settings</span>
+            </label>
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_block_count" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="BlockCount">Block count</span>
+            </label>
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_videos" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="Videos">Videos</span>
+            </label>
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_api" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="APISettings">API settings</span>
+            </label>
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_channels" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="Channels">Channels</span>
+            </label>
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_password" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="Password">Password</span>
+            </label>
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_comments" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="Comments">Comments</span>
+            </label>
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_overlays" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="Overlays">Overlays</span>
+            </label>
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="reset_posts" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span data-i18n="Posts">Posts</span>
+            </label>
+            
+        </div>
+
+        <menu class="pt-4 flex justify-end gap-2">
+            <button modal-close id="cancel" data-i18n="Cancel" class="bg-yt-100 dark:bg-yt-600 border py-1 px-2 border-yt-400 opacity-80 hover:opacity-100 focus-visible:border-white active:opacity-50 shadow-sm dark:shadow-md shadow-yt-600 dark:shadow-yt-800">Cancel</button>
+            <button modal-submit id="continue" data-i18n="Continue" class="text-yt-50 bg-blue-700 py-1 px-2 opacity-80 hover:opacity-100 active:opacity-50 shadow-sm dark:shadow-md shadow-yt-600 dark:shadow-yt-800">Continue</button>
+        </menu>
+    </dialog>
+
+    <!-- donation reminder -->
+    <dialog id="donation_reminder" animated class="rounded-lg p-8 text-base text-center w-3/4 min-w-[300px] max-w-[600px] bg-slate-50 dark:bg-slate-800 text-yt-800 dark:text-yt-50 backdrop:bg-yt-900 backdrop:opacity-30">
+        <button modal-close data-i18n-aria-label="CloseButton" aria-label="Close button" class="absolute top-1 right-1 w-8 h-8 text-sm opacity-75 hover:opacity-100">
+            <i class="fa fa-close"></i>
+        </button>
+		
+		<div class="pb-4">
+            <h2 data-i18n="DonationModalHello" class="text-3xl">Hello there!</h2>
+            <p data-i18n="DonationModalParagraph" class="pt-2 text-justify opacity-95" style="text-align-last: center;">
+                You been using the extension for a while and I sincerely hope it's been beneficial to you. It's a free tool, and it always will be. If you feel like it's worth it, any support would be greatly appreciated.
+            </p>
+        </div>
+        <div class="pb-4">
+            <h3 data-i18n="Donate" class="text-2xl">Donate</h3>
+            <a modal-focus href="https://www.patreon.com/EdoanDev" target="_blank" class="block font-semibold bg-orange-600 opacity-90 hover:opacity-100 text-white py-1 px-4 rounded mt-2">Patreon</a>
+            <a href="https://www.paypal.com/donate/?hosted_button_id=AP5M7UXBWR47C" target="_blank" class="block font-semibold bg-blue-600 opacity-90 hover:opacity-100 text-white py-1 px-4 rounded mt-2">PayPal</a>
+            <a href="https://nubank.com.br/pagar/xldsq/rfgW3dODQh" target="_blank" class="pix block font-semibold bg-green-600 opacity-90 hover:opacity-100 text-white py-1 px-4 rounded mt-2">Pix</a>
+            <a href="https://ko-fi.com/edoan" target="_blank" class="block font-semibold bg-red-500 opacity-90 hover:opacity-100 text-white py-1 px-4 rounded mt-2">Ko-fi</a>
+        </div>
+        <div>
+            <h3 data-i18n="DonationModalRemindMe" class="text-2xl">Remind Me</h3>
+            <div class="flex justify-center max-sm:grid gap-2 pt-2">
+
+            <!-- each radio has the value of hours to be reminded to donate again -->
+			<label class="group relative flex gap-2">
+				<input class="peer opacity-0" type="radio" name="remind_time" value="168" />
+				<span class="group absolute flex justify-center items-center w-[14px] h-[14px] border border-yt-800 dark:border-yt-100 left-[0px] top-[5px] rounded-full opacity-80 dark:opacity-90 peer-hover:opacity-100 peer-focus-visible:outline outline-1">
+                    <span class="w-[8px] h-[8px] absolute rounded-full bg-transparent group-peer-checked:bg-blue-500"></span>
+				</span>
+				<span data-i18n="DonationModalNextWeek">Next week</span>
+            </label>
+			<label class="group relative flex gap-2">
+				<input class="peer opacity-0" type="radio" name="remind_time" value="720" checked />
+				<span class="group absolute flex justify-center items-center w-[14px] h-[14px] border border-yt-800 dark:border-yt-100 left-[0px] top-[5px] rounded-full opacity-80 dark:opacity-90 peer-hover:opacity-100 peer-focus-visible:outline outline-1">
+                    <span class="w-[8px] h-[8px] absolute rounded-full bg-transparent group-peer-checked:bg-blue-500"></span>
+				</span>
+				<span data-i18n="DonationModalNextMonth">Next month</span>
+            </label>
+			<label class="group relative flex gap-2">
+				<input class="peer opacity-0" type="radio" name="remind_time" value="2160" />
+				<span class="group absolute flex justify-center items-center w-[14px] h-[14px] border border-yt-800 dark:border-yt-100 left-[0px] top-[5px] rounded-full opacity-80 dark:opacity-90 peer-hover:opacity-100 peer-focus-visible:outline outline-1">
+                    <span class="w-[8px] h-[8px] absolute rounded-full bg-transparent group-peer-checked:bg-blue-500"></span>
+				</span>
+				<span data-i18n="DonationModalNextThreeMonths">Next three months</span>
+            </label>
+			<label class="group relative flex gap-2">
+				<input class="peer opacity-0" type="radio" name="remind_time" value="0" />
+				<span class="group absolute flex justify-center items-center w-[14px] h-[14px] border border-yt-800 dark:border-yt-100 left-[0px] top-[5px] rounded-full opacity-80 dark:opacity-90 peer-hover:opacity-100 peer-focus-visible:outline outline-1">
+                    <span class="w-[8px] h-[8px] absolute rounded-full bg-transparent group-peer-checked:bg-blue-500"></span>
+				</span>
+				<span data-i18n="DonationModalNeverAgain">Never again</span>
+            </label>
+          </div>
+
+        </div>
+
+        <button modal-close data-i18n="Close" class="min-w-[100px] mt-4 font-semibold bg-slate-200 dark:bg-slate-600 rounded-lg border py-1 px-2 border-yt-400 opacity-80 hover:opacity-100 focus-visible:border-white active:opacity-50">
+            Close
+        </button>
+    </dialog>
+
+    <div id="loading" class="fixed w-full h-full bg-yt-50 dark:bg-yt-900 z-[60]"></div>
+
+    <main class="w-full absolute min-h-full text-2xl">
+        <button 
+            id="save"
+            data-i18n="OptionSaveButton"
+            class="fixed cursor-pointer rounded-lg min-w-[10rem] text-center px-2 py-2 text-4xl z-50 right-4 text-yt-50 bg-blue-700 hover:bg-blue-600 bottom-4">
+            Save
+        </button>
+        <header id="header" class="fixed w-full h-14 bg-yt-200 dark:bg-yt-700 z-50 flex items-center">
+            <button id="sidebar-toggle"
+                class="sm:hidden w-14 min-w-14 h-full focus-visible:border-2 dark:focus-visible:border border-yt-900 dark:border-yt-50 outline-none bg-transparent hover:bg-yt-250 dark:hover:bg-yt-600 z-50 flex justify-center items-center">
+                <i class="fa fa-bars"></i>
+            </button>
+            <div id="logo" class="flex items-center gap-2 ml-4 max-sm:ml-1 flex-grow">
+                <img src="../images/icon-48.png" alt="icon.png">
+                <span data-i18n="ExtName" class="text-base sm:text-xl font-bold overflow-hidden max-h-14">Video Blocker for YouTube™</span>
+            </div>
+            <a 
+                id="changelog"
+                data-i18n-title="OptionChangelogs"
+                title="Changelog"
+                data-i18n-url="href"
+                href="./docs/en/changelogs.html"
+                news-for="4.0.0"
+                target="_blank" rel="noopener noreferrer"
+                class="relative focus-visible:border-2 dark:focus-visible:border border-yt-900 dark:border-yt-50 outline-none w-14 min-w-14 h-full hover:bg-yt-250 dark:hover:bg-yt-600 z-50 flex justify-center items-center">
+                <i class="fa fa-bullhorn"></i>
+                <div id="notification" class="hidden">
+                    <i class="absolute bg-red-600 rounded-[50%] w-2 h-2 bottom-2 right-2"></i>
+                    <i id="ping" class="absolute bg-red-600 rounded-[50%] w-2 h-2 bottom-2 right-2"></i>
+                </div>
+            </a>
+            <button 
+                id="theme_toggle"
+                class="focus-visible:border-2 dark:focus-visible:border border-yt-900 dark:border-yt-50 outline-none w-14 min-w-14 h-full hover:bg-yt-250 dark:hover:bg-yt-600 z-50 flex justify-center items-center">
+                <i class="fa fa-adjust"></i>
+            </button>
+            <div 
+                id="donation"
+                data-i18n-title="Donate"
+                title="Donate"
+                class="relative cursor-pointer group w-14 min-w-14 h-14 mr-4 max-sm:mr-1 z-50 flex justify-center items-center">
+                <button class="focus-visible:border-2 dark:focus-visible:border border-yt-900 dark:border-yt-50 outline-none w-full h-full flex justify-center items-center hover:bg-yt-250 dark:hover:bg-yt-600">
+                    <i class="fa fa-heart text-red-500 dark:text-red-400"></i>
+                </button>
+                <div
+                    class="absolute top-14 h-0 w-full flex-col justify-center overflow-hidden bg-transparent transition-all duration-500 motion-reduce:transition-none">
+                    <a href="https://www.patreon.com/EdoanDev" target="_blank"
+                        title="Patreon" class="focus-visible:border-2 dark:focus-visible:border border-yt-900 dark:border-yt-50 outline-none w-14 h-14 flex bg-clip-content justify-center items-center bg-yt-200 dark:bg-yt-700 hover:bg-yt-250 dark:hover:bg-yt-600">
+                        <img class="w-9 h-9 rounded-2xl" src="../images/donation-buttons/patreon.png" alt="patreon">
+                    </a>
+                    <a href="https://www.paypal.com/donate/?hosted_button_id=AP5M7UXBWR47C" target="_blank"
+                        title="Paypal" class="focus-visible:border-2 dark:focus-visible:border border-yt-900 dark:border-yt-50 outline-none w-14 h-14 flex bg-clip-content justify-center items-center bg-yt-200 dark:bg-yt-700 hover:bg-yt-250 dark:hover:bg-yt-600">
+                        <img class="w-9 h-9" src="../images/donation-buttons/paypal.png" alt="paypal">
+                    </a>
+                    <a href="https://nubank.com.br/pagar/xldsq/rfgW3dODQh" target="_blank"
+                        title="PIX" class="pix focus-visible:border-2 dark:focus-visible:border border-yt-900 dark:border-yt-50 outline-none w-14 h-14 flex bg-clip-content justify-center items-center bg-yt-200 dark:bg-yt-700 hover:bg-yt-250 dark:hover:bg-yt-600">
+                        <img class="w-9 h-9 bg-slate-600 p-1 dark:p-0 dark:bg-transparent rounded" src="../images/donation-buttons/pix.png" alt="pix">
+                    </a>
+                    <a href="https://ko-fi.com/edoan" target="_blank"
+                        title="Ko-fi" class="focus-visible:border-2 dark:focus-visible:border border-yt-900 dark:border-yt-50 outline-none w-14 h-14 rounded-b-2xl flex bg-clip-content justify-center items-center bg-yt-200 dark:bg-yt-700 hover:bg-yt-250 dark:hover:bg-yt-600">
+                        <img class="w-9 h-9 rounded-2xl" src="../images/donation-buttons/ko-fi.png" alt="ko-fi">
+                    </a>
+                </div>
+            </div>
+        </header>
+        <aside id="sidebar"
+            class="w-[16rem] h-full max-sm:hidden mt-14 overflow-y-auto bg-yt-100 dark:bg-yt-800 fixed z-40">
+            <ul class="">
+                <li>
+                    <a id="general"
+                        class="flex items-center relative overflow-hidden px-3 py-2 aria-selected:pl-8 group aria-selected:bg-gradient-to-r from-yt-250 dark:from-yt-600"
+                        href="#general">
+                        <span
+                            data-i18n="General"
+                            class="px-2 py-0.5 block text-yt-900 group-hover:text-blue-800 dark:text-yt-100 dark:group-hover:text-yt-50 rounded group-aria-selected:bg-transparent">
+                            General
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a id="videos"
+                        class="flex items-center relative overflow-hidden px-3 py-2 aria-selected:pl-8 group aria-selected:bg-gradient-to-r from-yt-250 dark:from-yt-600"
+                        href="#videos">
+                        <span
+                            data-i18n="Videos"
+                            class="px-2 py-0.5 block text-yt-900 group-hover:text-blue-800 dark:text-yt-100 dark:group-hover:text-yt-50 rounded group-aria-selected:bg-transparent">
+                            Videos
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a id="channels"
+                        class="flex items-center relative overflow-hidden px-3 py-2 aria-selected:pl-8 group aria-selected:bg-gradient-to-r from-yt-250 dark:from-yt-600"
+                        href="#channels">
+                        <span
+                            data-i18n="Channels"
+                            class="px-2 py-0.5 block text-yt-900 group-hover:text-blue-800 dark:text-yt-100 dark:group-hover:text-yt-50 rounded group-aria-selected:bg-transparent">
+                            Channels
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a id="comments"
+                        class="flex items-center relative overflow-hidden px-3 py-2 aria-selected:pl-8 group aria-selected:bg-gradient-to-r from-yt-250 dark:from-yt-600"
+                        href="#comments">
+                        <span
+                            data-i18n="Comments"
+                            class="px-2 py-0.5 block text-yt-900 group-hover:text-blue-800 dark:text-yt-100 dark:group-hover:text-yt-50 rounded group-aria-selected:bg-transparent">
+                            Comments
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a id="posts"
+                        class="flex items-center relative overflow-hidden px-3 py-2 aria-selected:pl-8 group aria-selected:bg-gradient-to-r from-yt-250 dark:from-yt-600"
+                        href="#posts">
+                        <span
+                            data-i18n="Posts"
+                            class="px-2 py-0.5 block text-yt-900 group-hover:text-blue-800 dark:text-yt-100 dark:group-hover:text-yt-50 rounded group-aria-selected:bg-transparent">
+                            Posts
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a id="security"
+                        class="flex items-center relative overflow-hidden px-3 py-2 aria-selected:pl-8 group aria-selected:bg-gradient-to-r from-yt-250 dark:from-yt-600"
+                        href="#security">
+                        <span
+                            data-i18n="Security"
+                            class="px-2 py-0.5 block text-yt-900 group-hover:text-blue-800 dark:text-yt-100 dark:group-hover:text-yt-50 rounded group-aria-selected:bg-transparent">
+                            Security
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a id="overlays"
+                        class="flex items-center relative overflow-hidden px-3 py-2 aria-selected:pl-8 group aria-selected:bg-gradient-to-r from-yt-250 dark:from-yt-600"
+                        href="#overlays">
+                        <span
+                            data-i18n="Overlays"
+                            class="px-2 py-0.5 block text-yt-900 group-hover:text-blue-800 dark:text-yt-100 dark:group-hover:text-yt-50 rounded group-aria-selected:bg-transparent">
+                            Overlays
+                        </span>
+                    </a>
+                </li>
+                <li>
+                    <a id="api"
+                        class="flex items-center relative overflow-hidden px-3 py-2 aria-selected:pl-8 group aria-selected:bg-gradient-to-r from-yt-250 dark:from-yt-600"
+                        href="#api">
+                        <span
+                            data-i18n="API"
+                            class="px-2 py-0.5 block text-yt-900 group-hover:text-blue-800 dark:text-yt-100 dark:group-hover:text-yt-50 rounded group-aria-selected:bg-transparent">
+                            API
+                        </span>
+                    </a>
+                </li>
+            </ul>
+
+        </aside>
+        <div id="dark_overlay" class="w-full h-full bg-black/30 fixed z-30"></div>
+        <div id="contents" class="pl-0 h-full text-base mt-14 z-20">
+            <section id="general" class="content p-4 absolute hidden text-2xl">
+
+                <div data-i18n="GeneralWelcome" class="text-4xl">Welcome!</div>
+
+                <hr class="my-4">
+
+                <p data-i18n="GeneralPreBlockCount" class="mb-2">So far you blocked...</p>
+
+                <div id="counter" class="pl-4 border-l-4 border-yt-500">
+                    <p id="videos" class="block-count" data-i18n-innerHTML="VideoBlockCount,0">
+                        <span>0</span> videos
+                    </p>
+                    <p id="comments" class="block-count" data-i18n-innerHTML="CommentBlockCount,0">
+                        <span>0</span> comments
+                    </p>
+                    <p id="posts" class="block-count" data-i18n-innerHTML="PostBlockCount,0">
+                        <span>0</span> posts
+                    </p>
+                </div>
+
+                <label class="block checkbox-container my-3 mt-6 !text-base">
+                    <input id="auto_save" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="GeneralAutoSave">Auto-save</span>
+                </label>
+
+                <label class="block checkbox-container my-3 mt-3 mb-6 !text-base">
+                    <input id="logo_redirect" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="GeneralYTLogoRedirect">YouTube™ logo redirect to subscription page</span>
+                </label>
+
+                <button id="hard_to_disable_button" class="hidden mb-4 text-base py-1 px-3 my-1 rounded-sm bg-blue-600 active:opacity-95 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:active:opacity-95 text-slate-100">
+                    Click X times to change the option below
+                </button>
+
+                <div id="hard_disable_container">
+                    <label class="block checkbox-container mb-4 !text-base">
+                        <input id="hard_disable" option-control type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="GeneralMakeHarderToDisable">Make it harder to disable the extension</span>
+                    </label>
+    
+                    <div class="!text-base ml-6 mb-4" hide-when-option-unchecked="hard_disable">
+                        <span class="!text-base" data-i18n="GeneralClickAmountToDisable">Click amount to disable</span> <br>
+
+                        <div class="flex gap-4">
+                            <label>
+                                <input type="radio" name="disable_click_amount" value="10">
+                                <span>10</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="disable_click_amount" value="25">
+                                <span>25</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="disable_click_amount" value="50">
+                                <span>50</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="disable_click_amount" value="75">
+                                <span>75</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="disable_click_amount" value="100">
+                                <span>100</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block content -->
+                <div
+                    class="border text-base mb-4 mt-2 border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                    <label>
+                        <span class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                            <span data-i18n="BlockContentKeywords">Block content that include:</span>
+                            <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                data-balloon-length="xlarge"
+                                data-i18n-aria-label="GenericKeywordInfo"
+                                aria-label="Examples: &#10;'best' will match content like: 'Best movie quotes' &#10;'top, hd' will match content like: 'Top 10 albums of all time' and 'Beautiful Landscapes (HD)'&#10;&#10;With Regex:&#10;'/a+/i' will match content like: 'AaaaAAaAAAAaaAAA'&#10;'/(official (music )?video)/i' will match content like: 'Lorem Ipsum (Official Music Video)' and '(Official Video)'"><i
+                                class="fa fa-question-circle"></i>
+                            </span>
+                            <span class="block opacity-75 dark:opacity-60" data-i18n="BlockContentKeywordsNote">This will applied to videos, comments and posts</span>
+                        </span>
+                        <textarea 
+                            id="block_content" 
+                            save-size
+                            data-i18n-placeholder="VideosBlockTitlePlaceholder" 
+                            placeholder="playthrough, tutorial, music video"
+                            class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                            rows="3"></textarea>
+                        <span class="text-base text-yt-600 dark:text-yt-300 italic">
+                            <span data-i18n="CommaLineSeparation">Separate by comma ( , ) or lines</span>
+                            <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                data-balloon-length="xlarge"
+                                data-i18n-aria-label="CommaLineSeparationInfo"
+                                aria-label="In cases that the keyword must have a comma, insert a backslash (\) before the comma. Ex:&#10 Bananas\, apples and oranges"><i
+                                class="fa fa-question-circle"></i>
+                            </span>
+                        </span>
+                    </label>
+
+                    <!-- Case sensitive -->
+                    <label class="block checkbox-container mt-2">
+                        <input id="block_content_cs" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="CaseSensitive">Case sensitive</span>
+                        <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                            data-i18n-aria-label="CaseSensitiveInfo"
+                            aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                            data-balloon-pos="up">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
+                    </label>
+
+                    <!-- Word boundary -->
+                    <label class="block checkbox-container mt-2">
+                        <input id="block_content_wb" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="WordBoundary">Word boundary</span>
+                        <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                            data-i18n-aria-label="WordBoundaryInfo"
+                            aria-label="When checked, it will only match if the keyword is a fully word. For example, 'lever' will not block content that has 'clever'."
+                            data-balloon-pos="up">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
+                    </label>
+
+                </div>
+
+                <p>
+                    <span data-i18n="GeneralHeadOverSection">Head over to some of the sections for more advanced options:</span> <br>
+                    <a data-i18n="Videos" class="link" href="#videos">Videos</a> • 
+                    <a data-i18n="Channels" class="link" href="#channels">Channels</a> • 
+                    <a data-i18n="Comments" class="link" href="#comments">Comments</a> • 
+                    <a data-i18n="Posts" class="link" href="#posts">Posts</a> 
+                </p>
+
+                <hr class="my-4">
+
+                <a class="link" data-i18n="GeneralAdvancedGuide" data-i18n-url="href" href="./docs/en/advanced_guide.html" target="_blank" rel="noopener noreferrer">
+                    Advanced Guide
+                </a>
+
+                <div class="mt-4 text-base">
+                    <button id="default_settings" data-i18n="GeneralDefaultSettings" class="py-1 px-3 my-1 rounded-sm bg-blue-600 active:bg-blue-700 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:active:bg-blue-800 text-slate-100">
+                        Reset to Default
+                    </button>
+                    <input type="file" id="import_input" accept=".vby,.ytb" class="hidden">
+                    <button id="import_settings" data-i18n="GeneralImportSettings" class="py-1 px-3 my-1 rounded-sm bg-blue-600 active:bg-blue-700 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:active:bg-blue-800 text-slate-100">
+                        Import Settings
+                    </button>
+                    <button id="export_settings" data-i18n="GeneralExportSettings" class="py-1 px-3 my-1 rounded-sm bg-blue-600 active:bg-blue-700 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:active:bg-blue-800 text-slate-100">
+                        Export Settings
+                    </button>
+                </div>
+
+                <div class="hide only-debug my-4">
+
+                </div>
+
+                <!-- TODO: guides? -->
+
+            </section>
+            <section id="videos" class="hidden content p-4 absolute">
+
+                <!-- Block video titles -->
+                <div
+                    class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                    <label>
+                        <span class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                            <span data-i18n="VideosBlockTitle">Block videos that title include:</span>
+                            <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                data-balloon-length="xlarge"
+                                data-i18n-aria-label="GenericKeywordInfo"
+                                aria-label="Examples: &#10;'best' will match content like: 'Best movie quotes' &#10;'top, hd' will match content like: 'Top 10 albums of all time' and 'Beautiful Landscapes (HD)'&#10;&#10;With Regex:&#10;'/a+/i' will match content like: 'AaaaAAaAAAAaaAAA'&#10;'/(official (music )?video)/i' will match content like: 'Lorem Ipsum (Official Music Video)' and '(Official Video)'"><i
+                                class="fa fa-question-circle"></i>
+                            </span>
+                        </span>
+                        <textarea id="block_titles" save-size data-i18n-placeholder="VideosBlockTitlePlaceholder" placeholder="playthrough, tutorial, music video"
+                            class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                            rows="3">
+                        </textarea>
+                        <span class="text-base text-yt-600 dark:text-yt-300 italic">
+                            <span data-i18n="CommaLineSeparation">Separate by comma ( , ) or lines</span>
+                            <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                data-balloon-length="xlarge"
+                                data-i18n-aria-label="CommaLineSeparationInfo"
+                                aria-label="In cases that the keyword must have a comma, insert a backslash (\) before the comma. Ex:&#10 Bananas\, apples and oranges"><i
+                                class="fa fa-question-circle"></i>
+                            </span>
+                        </span>
+                    </label>
+
+                    <!-- Case sensitive -->
+                    <label class="block checkbox-container mt-2">
+                        <input id="block_titles_cs" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="CaseSensitive">Case sensitive</span>
+                        <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                            data-i18n-aria-label="CaseSensitiveInfo"
+                            aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                            data-balloon-pos="up">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
+                    </label>
+
+                    <!-- Word boundary -->
+                    <label class="block checkbox-container mt-2">
+                        <input id="block_titles_wb" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="WordBoundary">Word boundary</span>
+                        <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                            data-i18n-aria-label="WordBoundaryInfo"
+                            aria-label="When checked, it will only match if the keyword is a fully word. For example, 'lever' will not block content that has 'clever'."
+                            data-balloon-pos="up">
+                            <i class="fa fa-question-circle"></i>
+                        </span>
+                    </label>
+
+                </div>
+
+                <!-- Block video channels -->
+                <div class="my-4">
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                <span data-i18n="VideosBlockChannels">Block videos from these channels (name or link):</span> <span class="tooltip"
+                                    data-balloon-break data-balloon-length="xlarge"
+                                    data-i18n-aria-label="VideosBlockChannelsInfo"
+                                    aria-label="Blocking by link is not recommended because in some pages it's not possible to get the channel link."
+                                    data-balloon-pos="up">
+                                    <i class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                            <textarea 
+                                id="block_video_channels"
+                                save-size
+                                data-i18n-placeholder="VideosBlockChannelsPlaceholder"
+                                placeholder="badChannel&#10;A Not Very Nice Channel&#10;https://www.youtube.com/channel/Ies24mwBcJTH1"
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3">
+                            </textarea>
+                            <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">
+                                Separate by lines
+                            </span>
+                        </label>
+
+                        <!-- Case sensisitve -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_video_channels_cs" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="CaseSensitive">Case sensitive</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="CaseSensitiveInfo"
+                                aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                        <!-- Exact match -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_video_channels_em" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="ExactMatch">Exact match</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="ExactMatchInfo"
+                                aria-label="When checked, the keyword must be the full name of the content. Example: 'book' will not block 'Facebook' or 'book reading'."
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                    </div>
+                </div>
+
+                <!-- Block video tags -->
+                <div class="my-4 api-required">
+                    <div class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label class="flex flex-col">
+                            <span data-i18n="VideosBlockTags" class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                Block videos by tags:
+                            </span>
+                            <textarea 
+                                id="block_tags" 
+                                save-size
+                                data-i18n-placeholder="VideosBlockTagsPlaceholder"
+                                placeholder="cooking, game, music"
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3"></textarea>
+                            <span data-i18n="CommaLineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">
+                                Separate by comma ( , ) or lines
+                            </span>
+                            <a href="#api" class="api-link api-required text-base dark:text-yellow-500 text-yellow-600">
+                                <i class="fa fa-lock pr-0.5"></i>
+                                <span data-i18n="RequireAPI" class="underline">Require API</span>
+                            </a>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Block video link or id -->
+                <div class="my-4">
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span data-i18n="VideosBlockSpecific" class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                Block videos by link or ID:
+                            </span>
+                            <textarea 
+                                id="block_videos"
+                                save-size
+                                placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ&#10;https://youtu.be/jNQXAC9IVRw&#10;jNQXAC9IVRw"
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3">
+                            </textarea>
+                            <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">Separate by lines</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Block video description -->
+                <div class="my-4">
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label class="flex flex-col">
+                            <span data-i18n="VideoBlockDescription" class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                Block videos that description include:
+                            </span>
+                            <textarea 
+                                id="block_descriptions" 
+                                save-size
+                                data-i18n-placeholder="VideoBlockDescriptionPlaceholder"
+                                placeholder="giveaway, twitch, financial advice"
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3">
+                            </textarea>
+                            <span class="text-base text-yt-600 dark:text-yt-300 italic">
+                                <span data-i18n="CommaLineSeparation">Separate by comma ( , ) or lines</span>
+                                <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                    data-balloon-length="xlarge"
+                                    data-i18n-aria-label="CommaLineSeparationInfo"
+                                    aria-label="In cases that the keyword must have a comma, insert a backslash (\) before the comma. Ex:&#10 Bananas\, apples and oranges"><i
+                                    class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                            <a href="#api" class="api-link api-required text-base dark:text-yellow-500 text-yellow-600">
+                                <i class="fa fa-lock pr-0.5"></i>
+                                <span class="underline" data-i18n="RequireAPISomePages">Require API in some pages</span>
+                                <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                    data-balloon-length="xlarge"
+                                    data-i18n-aria-label="VideoBlockDescriptionAPIWarnInfo"
+                                    aria-label="Without API, it's only possible to get description from the opened video on the watch page."><i
+                                    class="fa fa-question-circle pl-1"></i>
+                                </span>
+                            </a>
+                        </label>
+
+                        <!-- Case sensitive -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_descriptions_cs" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="CaseSensitive">Case sensitive</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="CaseSensitiveInfo"
+                                aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                        <!-- Word boundary -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_descriptions_wb" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="WordBoundary">Word boundary</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="WordBoundaryInfo"
+                                aria-label="When checked, it will only match if the keyword is a fully word. For example, 'lever' will not block content that has 'clever'."
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                    </div>
+                </div>
+
+                <span>Shorts</span>
+                <hr class="border-yt-400">
+
+                <!-- Block shorts -->
+                <label class="block checkbox-container my-3">
+                    <input id="block_shorts" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="VideoBlockShorts">
+                        Block shorts
+                    </span>
+                </label>
+
+                <!-- Auto skip blocked shorts -->
+                <label class="block checkbox-container my-3">
+                    <input id="auto_skip_blocked_shorts" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="AutoSkipBlockedShorts">
+                        Auto skip blocked shorts
+                    </span>
+                </label>
+
+                <hr class="border-yt-400">
+
+                <!-- Block live -->
+                <label class="block checkbox-container my-3">
+                    <input id="block_live" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="VideoBlockLive">Block live videos</span>
+                </label>
+
+                <!-- Block premiere -->
+                <label class="block checkbox-container my-3">
+                    <input id="block_premiere" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="VideoBlockPremiere">Block premiere videos</span>
+                </label>
+
+                <!-- Block MIX playlist -->
+                <label class="block checkbox-container my-3">
+                    <input id="block_mix" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span>
+                        <span data-i18n="VideoBlockMixPlaylist">Block Mix playlist</span>
+                        <span class="tooltip" data-balloon-pos="down" data-balloon-break data-balloon-length="xlarge"
+                            data-i18n-aria-label="VideoBlockMixPlaylistInfo"
+                            aria-label="Mix is a playlist generated by youtube that often show up in video suggestions."><i
+                            class="fa fa-question-circle"></i>
+                        </span>
+                    </span>
+                </label>
+
+                <!-- Prevent block of videos from playlists -->
+                <label class="block checkbox-container my-3">
+                    <input id="ignore_playlist_videos" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span>
+                        <span data-i18n="VideoBlockIgnorePlaylistVideos">Ignore playlist videos</span>
+                        <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                            data-balloon-length="xlarge"
+                            data-i18n-aria-label="VideoBlockIgnorePlaylistVideosInfo"
+                            aria-label="Videos from playlists will not be blocked."><i
+                            class="fa fa-question-circle"></i>
+                        </span>
+                    </span>
+                </label>
+
+                <!-- Prevent block of videos from inside watch later playlist -->
+                <label id="ignore_watch_later_playlist_label" class="block checkbox-container my-3">
+                    <input id="ignore_watch_later_playlist" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="VideoBlockIgnoreWatchLaterPlaylist">Ignore watch later playlist</span>
+                </label>
+
+                <!-- Block opened videos -->
+                <label class="block checkbox-container my-3">
+                    <input id="block_open_videos" type="checkbox" option-control>
+                    <span class="checkmark"></span>
+                    <span>
+                        <span data-i18n="VideoBlockOpenedVideos">Block opened videos</span>
+                        <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                            data-balloon-length="xlarge"
+                            data-i18n-aria-label="VideoBlockOpenedVideosInfo"
+                            aria-label="This will pause the video and hide it behind a card."><i
+                            class="fa fa-question-circle"></i>
+                        </span>
+                    </span>
+                </label>
+
+                <div class="pl-4 aria-disabled:opacity-50 aria-disabled:pointer-events-none" disable-when-option-unchecked="block_open_videos">
+
+                    <!-- Auto-skip blocked videos -->
+                    <label class="block checkbox-container my-3">
+                        <input id="auto_skip_video" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="VideoBlockAutoSkipVideo">
+                            Auto-skip blocked videos from playlists
+                        </span>
+                    </label>
+
+                    <!-- Remove the "Watch anyway" button -->
+                    <label class="block checkbox-container my-3">
+                        <input id="remove_watch_anymay" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="VideoBlockRemoveWatchAnyway">
+                            Remove the "Watch anyway" button
+                        </span>
+                    </label>
+
+                </div>
+
+                <!-- Block by duration -->
+                <div>
+                    <div class="mt-4">
+                        <span data-i18n="VideoBlockByDurationHR" class="font-semibold text-lg">Block by duration</span>
+                        <hr class="border-yt-400">
+                    </div>
+    
+                    <div data-i18n="DurationShortNotice" class="mt-1 mb-4">
+                        Note: it's not possible to get #short videos durations without API. But it will be assumed that is shorter than 60 seconds.
+                    </div>
+    
+                    <div class="ml-4">
+                        <!-- Block videos by greater duration -->
+                        <label class="tooltip" data-i18n-aria-label="VideoBlockDurationTooltip" aria-label="0 = disable" data-balloon-pos="up">
+                            <span data-i18n-innerHTML="VideoBlockDuration">Block videos <b>longer</b> than</span>
+                            <input id="video_max_duration" type="number" min="0" value="0"
+                                class="tooltip bg-yt-100 w-1/5 min-w-[5rem] dark:bg-transparent border-b-2 border-yt-400 hover:border-blue-700 dark:hover:border-blue-300 focus:border-blue-700 dark:focus:border-blue-300 outline-none text-lg pl-2">
+                            <span data-i18n="secondPlural">seconds</span>
+                        </label>
+        
+                        <!-- Block videos by lesser duration -->
+                        <label class="tooltip block mt-2 mb-4" data-i18n-aria-label="VideoBlockDurationTooltip" aria-label="0 = disable" data-balloon-pos="up">
+                            <span data-i18n-innerHTML="VideoBlockMinDuration">Block videos <b>shorter</b> than</span>
+                            <input id="video_min_duration" type="number" min="0" value="0"
+                                class="tooltip bg-yt-100 w-1/5 min-w-[5rem] dark:bg-transparent border-b-2 border-yt-400 hover:border-blue-700 dark:hover:border-blue-300 focus:border-blue-700 dark:focus:border-blue-300 outline-none text-lg pl-2">
+                            <span data-i18n="secondPlural">seconds</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Block by publication -->
+                <div class="api-required">
+                    <div class="my-4">
+                        <span data-i18n="VideoBlockByPublishedTimeHR" class="font-semibold text-lg">Block by published time</span>
+                        <a href="#api" class="api-link api-required text-base dark:text-yellow-500 text-yellow-600 pl-1">
+                            <i class="fa fa-lock pr-0.5"></i>
+                            <span data-i18n="RequireAPI" class="underline">Require API</span>
+                        </a>
+                        <hr class="border-yt-400">
+                    </div>
+
+                    <div class="ml-4" id="block_by_published_time_section">
+                        <!-- Block videos older than set time. -->
+                        <label class="tooltip" data-i18n-aria-label="VideoBlockPublishedTimeTooltip" aria-label="0 = disable" data-balloon-pos="up">
+                            <span data-i18n-innerHTML="VideoPublishedTimeOlder">Block videos <b>older</b> than</span>
+                            <input id="video_max_older" type="number" min="0" value="0"
+                                class="tooltip bg-yt-100 w-1/5 min-w-[5rem] dark:bg-transparent border-b-2 border-yt-400 hover:border-blue-700 dark:hover:border-blue-300 focus:border-blue-700 dark:focus:border-blue-300 outline-none text-lg pl-2">
+                            <span data-i18n="days">day(s)</span>
+                        </label>
+
+                        <!-- Block videos newer than set time. -->
+                        <label class="tooltip block mt-2 mb-4" data-i18n-aria-label="VideoBlockPublishedTimeTooltip" aria-label="0 = disable" data-balloon-pos="up">
+                            <span data-i18n-innerHTML="VideoPublishedTimeNewer">Block videos <b>newer</b> than</span>
+                            <input id="video_max_newer" type="number" min="0" value="0"
+                                class="tooltip bg-yt-100 w-1/5 min-w-[5rem] dark:bg-transparent border-b-2 border-yt-400 hover:border-blue-700 dark:hover:border-blue-300 focus:border-blue-700 dark:focus:border-blue-300 outline-none text-lg pl-2">
+                            <span data-i18n="days">day(s)</span>
+                        </label>
+                    </div>
+
+                </div>
+
+                
+
+                <div class="my-4 api-required">
+                    <span data-i18n="VideoBlockCategories" class="font-semibold text-lg">Block by category</span>
+                    <a href="#api" class="api-link api-required text-base dark:text-yellow-500 text-yellow-600 pl-1">
+                        <i class="fa fa-lock pr-0.5"></i>
+                        <span data-i18n="RequireAPI" class="underline">Require API</span>
+                    </a>
+                    <hr class="border-yt-400">
+                </div>
+
+                <div class="mt-4 mb-12 api-required">
+                    <p data-i18n="VideoBlockSelectCategories" class="mb-2">Videos from selected category will be blocked.</p>
+                    <div>
+                        <button id="select_all" data-i18n="VideoBlockSelectAll" class="py-1 px-3 rounded-sm bg-blue-600 active:bg-blue-700 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:active:bg-blue-800 text-slate-100">
+                            Select All
+                        </button>
+                        <button id="unselect_all" data-i18n="VideoBlockUnselectAll" class="py-1 px-3 rounded-sm bg-blue-600 active:bg-blue-700 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:active:bg-blue-800 text-slate-100">
+                            Unselect All
+                        </button>
+                    </div>
+                    <div id="categories" class="my-3 flex flex-wrap gap-2 max-w-2xl">
+                        <!-- Categories buttons goes here -->
+                    </div>
+                </div>
+
+            </section>
+            <section id="channels" class="hidden content p-4 absolute">
+
+                <label class="block checkbox-container">
+                    <input id="add_channel_block_button" type="checkbox" option-control>
+                    <span class="checkmark"></span>
+                    <span data-i18n="AddChannelBlockButton">Add block button next to channel names</span>
+                </label>
+
+                <div disable-when-option-unchecked="add_channel_block_button" class="pl-4 pt-2 aria-disabled:opacity-50 aria-disabled:pointer-events-none">
+                    <label class="block checkbox-container">
+                        <input id="show_channel_block_button_on_hover" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="ShowOnlyOnHover">Show button only on hover</span>
+                    </label>
+                </div>
+
+                <p data-i18n="ParagraphChannelBlocks" class="pt-4">The channels below will be applied to block any type of content (videos, comments and posts)</p>
+
+                <!-- Block channels -->
+                <div class="my-4">
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                <span data-i18n="ChannelBlock">Block any content from these channels: (name or link)</span> <span class="tooltip"
+                                    data-balloon-break data-balloon-length="xlarge"
+                                    data-i18n-aria-label="VideosBlockChannelsInfo"
+                                    aria-label="Blocking by link is not recommended because in some pages it's not possible to get the channel link."
+                                    data-balloon-pos="up">
+                                    <i class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                            <textarea 
+                                id="block_channels" 
+                                style="height: 12rem;"
+                                save-size
+                                data-i18n-placeholder="ChannelBlockPlaceholder"
+                                placeholder="badChannel&#10;A Not Very Nice Channel&#10;https://www.youtube.com/channel/Ies24mwBcJTH1&#10;annoying user"
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3"></textarea>
+                            <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">
+                                Separate by lines
+                            </span>
+                        </label>
+
+                        <!-- Case sensitive -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_channels_cs" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="CaseSensitive">Case sensitive</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="CaseSensitiveInfo"
+                                aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                        <!-- Exact match -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_channels_em" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="ExactMatch">Exact match</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="ExactMatchInfo"
+                                aria-label="When checked, the keyword must be the full name of the content. Example: 'book' will not block 'Facebook' or 'book reading'."
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Whitelist channels -->
+                <div class="my-4">
+                    <div
+                        class="border dark:bg-slate-800 bg-slate-200 border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                <span data-i18n="ChannelBlockWhitelist">Whitelist channels:</span> <span class="tooltip"
+                                    data-balloon-break data-balloon-length="xlarge"
+                                    data-i18n-aria-label="ChannelBlockWhitelistInfo"
+                                    aria-label="Content from these channels will not be blocked."
+                                    data-balloon-pos="up">
+                                    <i class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                            <textarea 
+                                id="whitelist_channels" 
+                                style="height: 12rem;"
+                                save-size
+                                data-i18n-placeholder="ChannelBlockWhitelistPlaceholder"
+                                placeholder="goodChannel&#10;A Very Nice Channel&#10;https://www.youtube.com/channel/Ies24mwBcJTH1&#10;awesome user"
+                                class="resize block bg-slate-300 dark:bg-slate-900 placeholder-slate-600 dark:placeholder-slate-500 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3"></textarea>
+                            <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">
+                                Separate by lines
+                            </span>
+                        </label>
+
+                        <!-- Case sensitive -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="whitelist_channels_cs" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="CaseSensitive">Case sensitive</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="CaseSensitiveInfo"    
+                                aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                        <!-- Exact match -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="whitelist_channels_em" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="ExactMatch">Exact match</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="ExactMatchInfo"
+                                aria-label="When checked, the keyword must be the full name of the content. Example: 'book' will not block 'Facebook' or 'book reading'."
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+            </section>
+            <section id="comments" class="hidden content p-4 absolute">
+
+                <!-- Block comment content -->
+                <div>
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                <span data-i18n="BlockCommentsContent">Block comments that include:</span>
+                                <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                    data-balloon-length="xlarge"
+                                    data-i18n-aria-label="GenericKeywordInfo"
+                                    aria-label="Examples: &#10;'best' will match content like: 'Best movie quotes' &#10;'top, hd' will match content like: 'Top 10 albums of all time' and 'Beautiful Landscapes (HD)'&#10;&#10;With Regex:&#10;'/a+/i' will match content like: 'AaaaAAaAAAAaaAAA'&#10;'/(official (music )?video)/i' will match content like: 'Lorem Ipsum (Official Music Video)' and '(Official Video)'"><i
+                                    class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                            <textarea 
+                                id="block_comment_contents" 
+                                save-size
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                data-i18n-placeholder="BlockCommentsContentPlaceholder"
+                                placeholder="follow me, giveaway, +18"
+                                rows="3">
+                            </textarea>
+                            <span class="text-base text-yt-600 dark:text-yt-300 italic">
+                                <span data-i18n="CommaLineSeparation">Separate by comma ( , ) or lines</span>
+                                <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                    data-balloon-length="xlarge"
+                                    data-i18n-aria-label="CommaLineSeparationInfo"
+                                    aria-label="In cases that the keyword must have a comma, insert a backslash (\) before the comma. Ex:&#10 Bananas\, apples and oranges"><i
+                                    class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                        </label>
+
+                        <!-- Case sensitive -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_comment_content_cs" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="CaseSensitive">Case sensitive</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="CaseSensitiveInfo"    
+                                aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                        <!-- Word boundary -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_comment_content_wb" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="WordBoundary">Word boundary</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="WordBoundaryInfo"
+                                aria-label="When checked, it will only match if the keyword is a fully word. For example, 'lever' will not block content that has 'clever'."
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Block comment users (channels) -->
+                <div class="my-4">
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span data-i18n="BlockCommentChannels" class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                Block comments from these users:
+                            </span>
+                            <textarea 
+                                id="block_comments_users"
+                                save-size
+                                data-i18n-placeholder="BlockCommentChannelsPlaceholder"
+                                placeholder="badUser009&#10;A Not So Great Channel&#10;annoying guy"
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3">
+                            </textarea>
+                            <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">
+                                Separate by lines
+                            </span>
+                        </label>
+
+                        <!-- Case sensitive -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_comments_users_cs" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="CaseSensitive">Case sensitive</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="CaseSensitiveInfo"    
+                                aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                        <!-- Exact match -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_comments_users_em" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="ExactMatch">Exact match</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="ExactMatchInfo"
+                                aria-label="When checked, the keyword must be the full name of the content. Example: 'book' will not block 'Facebook' or 'book reading'."
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+                        
+                    </div>
+                </div>
+
+                <div class="my-4">
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                <span data-i18n="BlockCommentSpecific">Block these comments:</span>
+                                <span class="tooltip" data-balloon-pos="up" data-balloon-break
+                                    data-balloon-length="xlarge"
+                                    data-i18n-aria-label="BlockCommentSpecificInfo"
+                                    aria-label="You can block comments by clicking on the three dots when you hover over them, or by right clicking (or copying) the timestamp link of the comment."><i
+                                    class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                            <textarea 
+                                id="block_comments" 
+                                save-size
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                data-i18n-placeholder="BlockCommentSpecificPlaceholder"
+                                placeholder="Comment ID or link."
+                                rows="3">
+                            </textarea>
+                            <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">
+                                Separate by lines
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+            </section>
+            <section id="posts" class="hidden content p-4 absolute">
+
+                <!-- Block post contents -->
+                <div>
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                <span data-i18n="BlockPostContent">Block posts that include:</span>
+                                <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                    data-balloon-length="xlarge"
+                                    data-i18n-aria-label="GenericKeywordInfo"
+                                    aria-label="Examples: &#10;'best' will match content like: 'Best movie quotes' &#10;'top, hd' will match content like: 'Top 10 albums of all time' and 'Beautiful Landscapes (HD)'&#10;&#10;With Regex:&#10;'/a+/i' will match content like: 'AaaaAAaAAAAaaAAA'&#10;'/(official (music )?video)/i' will match content like: 'Lorem Ipsum (Official Music Video)' and '(Official Video)'"><i
+                                    class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                            <textarea 
+                                id="block_post_contents"
+                                save-size
+                                data-i18n-placeholder="BlockPostContentPlaceholder"
+                                placeholder="bad word, annoying phrases"
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3">
+                            </textarea>
+                            <span class="text-base text-yt-600 dark:text-yt-300 italic">
+                                <span data-i18n="CommaLineSeparation">Separate by comma ( , ) or lines</span>
+                                <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                                    data-balloon-length="xlarge"
+                                    data-i18n-aria-label="CommaLineSeparationInfo"
+                                    aria-label="In cases that the keyword must have a comma, insert a backslash (\) before the comma. Ex:&#10 Bananas\, apples and oranges"><i
+                                    class="fa fa-question-circle"></i>
+                                </span>
+                            </span>
+                        </label>
+
+                        <!-- Case sensitive -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_post_contents_cs" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="CaseSensitive">Case sensitive</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="CaseSensitiveInfo"    
+                                aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                        <!-- Word boundary -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_post_contents_wb" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="WordBoundary">Word boundary</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="WordBoundaryInfo"
+                                aria-label="When checked, it will only match if the keyword is a fully word. For example, 'lever' will not block content that has 'clever'."
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                    </div>
+                </div>
+
+                <!-- Block post channels -->
+                <div class="my-4">
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span data-i18n="BlockPostChannels" class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                Block posts from these channels:
+                            </span>
+                            <textarea 
+                                id="block_post_channels"
+                                save-size
+                                data-i18n-placeholder="BlockPostChannelsPlaceholder"
+                                placeholder="badUser009&#10;A Not So Great Channel&#10;annoying guy"
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3"></textarea>
+                            <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">
+                                Separate by lines
+                            </span>
+                        </label>
+
+                        <!-- Case sensitive -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_post_channels_cs" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="CaseSensitive">Case sensitive</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="CaseSensitiveInfo"    
+                                aria-label="When checked, words like 'food' will not block content that includes 'FOOD' or 'FoOd'"
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+
+                        <!-- Exact match -->
+                        <label class="block checkbox-container mt-2">
+                            <input id="block_post_channels_em" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="ExactMatch">Exact match</span>
+                            <span class="tooltip" data-balloon-break data-balloon-length="xlarge"
+                                data-i18n-aria-label="ExactMatchInfo"
+                                aria-label="When checked, the keyword must be the full name of the content. Example: 'book' will not block 'Facebook' or 'book reading'."
+                                data-balloon-pos="up">
+                                <i class="fa fa-question-circle"></i>
+                            </span>
+                        </label>
+                        
+                    </div>
+                </div>
+
+                <div class="my-4">
+                    <div
+                        class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                        <label>
+                            <span data-i18n="BlockPostSpecific" class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                Block these posts:
+                            </span>
+                            <textarea 
+                                id="block_posts" 
+                                save-size
+                                placeholder="https://www.youtube.com/post/..."
+                                class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                rows="3"></textarea>
+                            <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">
+                                Separate by lines
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+            </section>
+            <section id="api" class="hidden content p-4 absolute">
+
+                <p data-i18n="ParagraphAPI">
+                    An API key is necessary for getting information about content on YouTube that is not visible on page.
+                    Such as categories, descriptions and tags from videos.
+                </p>
+
+                <label class="block checkbox-container mb-2 mt-4 !text-base">
+                    <input id="enable_api" type="checkbox" option-control>
+                    <span class="checkmark"></span>
+                    <span data-i18n="EnableAPI">Enable API</span>
+                </label>
+
+                <label disable-when-option-unchecked="enable_api" class="flex gap-2 mb-4 ml-4 aria-disabled:opacity-50 aria-disabled:pointer-events-none">
+                    <span data-i18n="APIKey">API key:</span>
+                    <div class="relative">
+                        <input id="api_key" type="password"
+                            class="w-[300px] max-sm:w-full dark:bg-yt-950 border border-yt-500 pl-2 pr-8 outline-none">
+                        <a password-toggle
+                            class="absolute w-7 text-center right-[0.1rem] cursor-pointer"><i
+                                class="fa fa-eye"></i></a>
+                    </div>
+                    <button id="check_api_key" data-i18n="APICheck" class="bg-yt-300 hover:bg-yt-400 active:bg-yt-500 text-yt-50 dark:bg-yt-600 dark:hover:bg-yt-500 dark:active:bg-yt-700 rounded px-2">
+                        Check
+                    </button>
+                </label>
+
+                <!-- API Status -->
+                <div id="api_status"
+                    class="hidden w-[27rem] max-sm:w-[22rem] my-2 h-20 font-mono text-xs rounded overflow-x-auto whitespace-nowrap px-2 border-b border-yt-400 bg-yt-100 dark:bg-yt-800">
+                </div>
+
+                <a data-i18n="APIGuideLink" class="font-semibold text-blue-500 dark:text-blue-400 underline" data-i18n-url="href" href="./docs/en/api_guide.html" target="_blank">
+                    How do I get an API key?
+                </a>
+
+                <p data-i18n="Paragraph2API" class="mt-4">
+                    Keep in mind that Youtube API Data is not infinite. There's a maximum of 10.000 calls per day. 
+                    The extension try to minimize the number of call as much as possible, but it can still reach the quota if you navigate a lot in YouTube™.
+                </p>
+
+                <hr class="border-yt-400 mt-4">
+
+                <p data-i18n="Paragraph3API" class="mt-2">
+                    The options below helps your API key not reach the quota.
+                </p>
+
+                <label class="block checkbox-container mt-4">
+                    <input id="cache_api_data" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="APICache">Cache API data (Recommended)</span>
+                    <span class="tooltip" data-balloon-pos="down" data-balloon-break
+                        data-balloon-length="xlarge"
+                        data-i18n-aria-label="APICacheInfo"
+                        aria-label="API data got from videos will be reuse for later when the video is found again. But the downside is that the data will not keep up-to-date with the video. Changes of title, description, tag, etc. will be ignored."><i
+                        class="fa fa-question-circle"></i>
+                    </span>
+                </label>
+
+                <div class="mt-2">
+                    <span data-i18n="APICacheCount">Videos cached:</span> <span id="api_cache_count" data-i18n="APICacheCount" class="mx-1">0</span>
+                    <button id="clear_api_cache" data-i18n="APIClearCache" class="bg-yt-300 hover:bg-yt-400 active:bg-yt-500 text-yt-50 dark:bg-yt-600 dark:hover:bg-yt-500 dark:active:bg-yt-700 rounded px-2">
+                        Clear Cache
+                    </button>
+                </div>
+
+                <label class="block checkbox-container mt-4">
+                    <input id="blacklist_api_pages" type="checkbox" option-control>
+                    <span class="checkmark"></span>
+                    <span data-i18n="APIPreventPages">Prevent use of API key in certain pages</span>
+                </label>
+
+                <div class="mt-2 pl-5 aria-disabled:opacity-50 aria-disabled:pointer-events-none" disable-when-option-unchecked="blacklist_api_pages">
+                    <label class="block checkbox-container mt-1">
+                        <input id="blacklist_api_subs" type="checkbox" option-control>
+                        <span class="checkmark"></span>
+                        <span data-i18n="APISubPage">Subscription page</span>
+                    </label>
+                    <label class="block checkbox-container mt-1">
+                        <input id="blacklist_api_home" type="checkbox" option-control>
+                        <span class="checkmark"></span>
+                        <span data-i18n="APIHomePage">Home page</span>
+                    </label>
+                    <label class="block checkbox-container mt-1">
+                        <input id="blacklist_api_watch" type="checkbox" option-control>
+                        <span class="checkmark"></span>
+                        <span data-i18n="APIWatchPage">Watch page</span>
+                    </label>
+                    <label class="block checkbox-container mt-1">
+                        <input id="blacklist_api_channel" type="checkbox" option-control>
+                        <span class="checkmark"></span>
+                        <span data-i18n="APIChannelPage">Channel pages</span>
+                    </label>
+                    <label class="block checkbox-container mt-1">
+                        <input id="blacklist_api_playlists" type="checkbox" option-control>
+                        <span class="checkmark"></span>
+                        <span data-i18n="APIPlaylistPage">Playlist pages</span>
+                    </label>
+                    <label class="block checkbox-container mt-1">
+                        <input id="blacklist_api_trending" type="checkbox" option-control>
+                        <span class="checkmark"></span>
+                        <span data-i18n="APITrendingPage">Trending page</span>
+                    </label>
+                    <label class="block checkbox-container mt-1">
+                        <input id="blacklist_api_shorts" type="checkbox" option-control>
+                        <span class="checkmark"></span>
+                        <span data-i18n="APIShortsPage">Shorts page</span>
+                    </label>
+
+                    <div class="my-2">
+                        <div
+                            class="border border-yt-800 dark:border-yt-300 group focus-within:border-blue-700 dark:focus-within:border-blue-300 rounded p-2 inline-block ">
+                            <label class="flex flex-col">
+                                <span data-i18n="APIOtherPages" class="group-focus-within:text-blue-700 dark:group-focus-within:text-blue-300">
+                                    Other pages:
+                                </span>
+                                <textarea 
+                                    id="blacklist_api_specific_pages"
+                                    save-size
+                                    style="height: 200px;"
+                                    placeholder="https://www.youtube.com/channel/2dhGbQtxeKB4yGM1&#10;https://www.youtube.com/playlist?list=3ia97FZzowQtZsK3&#10;https://www.youtube.com/watch?v=x9g99HORLsRQ0wsG"
+                                    class="resize block bg-yt-100 dark:bg-yt-900 placeholder-yt-400 dark:border-none outline-none p-2 text-base min-w-[10rem] min-h-[3rem] w-[16rem] sm:w-[26rem] max-w-[58rem]"
+                                    rows="3"></textarea>
+                                <span data-i18n="LineSeparation" class="text-base text-yt-600 dark:text-yt-300 italic">Separate by lines</span>
+                                <span data-i18n="SupportRegex" class="text-base text-yt-600 dark:text-yt-300 italic">Supports Regex</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="security" class="hidden content p-4 absolute pb-12">
+
+                <div id="set_password_area" class="">
+                    <h1 data-i18n="PasswordProtection" class="text-2xl pb-2">Password protection</h1>
+                    <hr class="pb-4">
+
+                    <label class="block pb-4">
+                        <span data-i18n="Password">Password</span>
+                        <div class="relative pt-2">
+                            <input id="set_password_input" type="password"
+                                class="w-[400px] max-sm:w-full dark:bg-yt-950 border border-yt-500 pl-2 pr-8 outline-none">
+                            <a password-toggle class="absolute w-7 text-center right-[0.1rem] cursor-pointer">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                        </div>
+                    </label>
+
+                    <label class="block">
+                        <span data-i18n="ConfirmPassword">Confirm password</span>
+                        <div class="relative pt-2">
+                            <input id="set_confirm_password_input" type="password"
+                                class="w-[400px] max-sm:w-full dark:bg-yt-950 border border-yt-500 pl-2 pr-8 outline-none">
+                            <a password-toggle class="absolute w-7 text-center right-[0.1rem] cursor-pointer">
+                                <i class="fa fa-eye"></i>
+                            </a>
+                        </div>
+                    </label>
+
+                    <!-- Error messages -->
+                    <p id="unmatched_password_message" class="text-red-500 hidden pt-4"></p>
+    
+                    <menu class="pt-4">
+                        <button id="set_password_button" data-i18n="SetPassword" class="py-1 px-3 my-1 rounded-sm bg-blue-600 active:bg-blue-700 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:active:bg-blue-800 text-slate-100">
+                            Set password
+                        </button>
+                    </menu>
+                </div>
+
+                <div id="change_password_area" class="hidden">
+                    <p class="pb-2" data-i18n="CurrentlyProtectedByPassword">
+                        The extension is currently protected by a password.
+                    </p>
+
+                    <button id="remove_password_button" data-i18n="RemovePassword" class="py-1 px-3 my-1 rounded-sm bg-red-600 active:bg-red-700 hover:bg-red-500 dark:bg-red-700 dark:hover:bg-red-600 dark:active:bg-red-800 text-slate-100">
+                        Remove password
+                    </button>
+
+                    <h1 data-i18n="ChangePassword" class="text-2xl pb-2 pt-4">Change password</h1>
+                    <hr class="pb-4">
+
+                    <form class="pb-4">
+                        <label class="block">
+                            <span data-i18n="OldPassword">Old password</span>
+                            <div class="relative pt-2">
+                                <input id="change_password_old" type="password"
+                                    class="w-[400px] max-sm:w-full dark:bg-yt-950 border border-yt-500 pl-2 pr-8 outline-none">
+                                <a password-toggle class="absolute w-7 text-center right-[0.1rem] cursor-pointer">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                            </div>
+                        </label>
+
+                        <p id="invalid_old_password_msg" class="text-red-600 font-semibold dark:text-red-500 dark:font-normal hidden"></p>
+
+                        <label class="block pt-4">
+                            <span data-i18n="NewPassword">New password</span>
+                            <div class="relative pt-2">
+                                <input id="change_password_new" type="password"
+                                    class="w-[400px] max-sm:w-full dark:bg-yt-950 border border-yt-500 pl-2 pr-8 outline-none">
+                                <a password-toggle class="absolute w-7 text-center right-[0.1rem] cursor-pointer">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                            </div>
+                        </label>
+
+                        <label class="block pt-4">
+                            <span data-i18n="ConfirmNewPassword">Confirm new password</span>
+                            <div class="relative pt-2">
+                                <input id="change_password_confirm_new" type="password"
+                                    class="w-[400px] max-sm:w-full dark:bg-yt-950 border border-yt-500 pl-2 pr-8 outline-none">
+                                <a password-toggle class="absolute w-7 text-center right-[0.1rem] cursor-pointer">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                            </div>
+                        </label>
+
+                        <p id="invalid_new_password" class="text-red-600 font-semibold dark:text-red-500 dark:font-normal hidden pt-4"></p>
+
+                    </form>
+
+                    <button id="update_password_button" data-i18n="UpdatePassword" class="py-1 px-3 my-1 rounded-sm bg-blue-600 active:bg-blue-700 hover:bg-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:active:bg-blue-800 text-slate-100">
+                        Update password
+                    </button>
+
+                    <h1 data-i18n="Security" class="text-2xl pb-2 pt-4">Security</h1>
+                    <hr class="pb-4">
+
+                    <label class="block checkbox-container my-3">
+                        <input checked id="keep_unlocked_checkbox" type="checkbox" option-control>
+                        <span class="checkmark"></span>
+                        <span data-i18n="KeepUnlockedCheckbox">Keep unlocked for some time</span>
+                    </label>
+
+                    <div id="unlock_time_container" class="pl-4 aria-disabled:opacity-50 aria-disabled:pointer-events-none" disable-when-option-unchecked="keep_unlocked_checkbox">
+                        <label for="unlock_time" class="block pb-2" data-i18n="ForHowLong">
+                            For how long?
+                        </label>
+    
+                        <select id="unlock_time" value="300" class="w-3/4 bg-transparent p-1 border border-yt-600 dark:border-yt-300">
+                            <option value="60" data-i18n="MinuteTime,1" class="dark:text-yt-50 text-yt-900 dark:bg-yt-800 bg-yt-100">1 minute</option>
+                            <option value="300" data-i18n="MinuteTime,5" class="dark:text-yt-50 text-yt-900 dark:bg-yt-800 bg-yt-100">5 minutes</option>
+                            <option value="900" data-i18n="MinuteTime,15" class="dark:text-yt-50 text-yt-900 dark:bg-yt-800 bg-yt-100">15 minutes</option>
+                            <option value="1800" data-i18n="MinuteTime,30" class="dark:text-yt-50 text-yt-900 dark:bg-yt-800 bg-yt-100">30 minutes</option>
+                            <option value="3600" data-i18n="HourTime,1" class="dark:text-yt-50 text-yt-900 dark:bg-yt-800 bg-yt-100">1 hora</option>
+                            <option value="14400" data-i18n="HourTime,4" class="dark:text-yt-50 text-yt-900 dark:bg-yt-800 bg-yt-100">4 horas</option>
+                            <option value="custom" data-i18n="Custom" class="dark:text-yt-50 text-yt-900 dark:bg-yt-800 bg-yt-100">Custom</option>
+                        </select>
+    
+                        <div id="custom_unlock_time" class="grid grid-rows-2 grid-cols-[repeat(2,100px)] gap-x-2 pt-2">
+                            <label for="unlock_h" data-i18n="Hours">Hours</label>
+                            <label for="unlock_m" data-i18n="Minutes">Minutes</label>
+                            <input type="number" value="0" min="0" max="999999" id="unlock_h" class="bg-yt-100 dark:bg-transparent border-b-2 border-yt-400 hover:border-blue-700 dark:hover:border-blue-300 focus:border-blue-700 dark:focus:border-blue-300 outline-none text-lg pl-2">
+                            <input type="number" value="0" min="0" max="999999" id="unlock_m" class="bg-yt-100 dark:bg-transparent border-b-2 border-yt-400 hover:border-blue-700 dark:hover:border-blue-300 focus:border-blue-700 dark:focus:border-blue-300 outline-none text-lg pl-2">
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+            <section id="overlays" class="hidden content p-4 absolute pb-12">
+
+                <label class="block checkbox-container my-3 mt-3 !text-base">
+                    <input id="show_overlays" type="checkbox" option-control>
+                    <span class="checkmark"></span>
+                    <span data-i18n="ShowOverlays">Show overlays</span>
+                </label>
+
+                <div class="aria-disabled:opacity-50 aria-disabled:pointer-events-none" disable-when-option-unchecked="show_overlays">
+
+                    <div class="pl-4">
+                        <label class="block checkbox-container my-3 mt-3 !text-base">
+                            <input id="show_video_overlay" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="ShowVideoOverlay">Show overlay for videos</span>
+                        </label>
+                        <label class="block checkbox-container my-3 mt-3 !text-base">
+                            <input id="show_comment_overlay" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="ShowCommentOverlay">Show overlay for comments</span>
+                        </label>
+                        <label class="block checkbox-container my-3 mt-3 !text-base">
+                            <input id="show_post_overlay" type="checkbox">
+                            <span class="checkmark"></span>
+                            <span data-i18n="ShowPostOverlay">Show overlay for posts</span>
+                        </label>
+                    </div>
+
+                    <label class="block checkbox-container my-3 mt-3 !text-base">
+                        <input id="remove_reveal_button" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="RemoveRevealButton">Remove reveal button</span>
+                    </label>
+    
+                    <label class="block checkbox-container my-3 mt-3 !text-base">
+                        <input id="remove_unblock_button" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="RemoveUnblockButton">Remove unblock button</span>
+                    </label>
+
+                    <label class="block checkbox-container my-3 mt-3 !text-base">
+                        <input id="remove_block_reason" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="RemoveBlockReason">Remove block reason</span>
+                    </label>
+
+                    <label class="block checkbox-container my-3 mt-3 !text-base">
+                        <input id="remove_options_reason" type="checkbox">
+                        <span class="checkmark"></span>
+                        <span data-i18n="RemoveOptionsButton">Remove options button</span>
+                    </label>
+                </div>
+
+                <label class="block checkbox-container my-3">
+                    <input id="remove_watch_anymay_2" type="checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="VideoBlockRemoveWatchAnyway">
+                        Remove the "Watch anyway" button
+                    </span>
+                </label>
+
+            </section>
+        </div>
+    </main>
+
+    <script src="../libs/jquery-3.6.0.min.js"></script>
+    <script src="../libs/moment.min.js"></script>
+    <script src="../libs/base64.min.js"></script>
+    <script src="../js/managers/message-manager.js"></script>
+    <script src="../js/managers/storage-manager.js"></script>
+    <script src="../js/managers/options_handler.js"></script>
+    <script src="../js/utilities/storage-migration.js"></script>
+    <script src="../js/utilities/modal.js"></script>
+    <script src="../js/utilities/password-modal.js"></script>
+    <script src="../js/utilities/constants.js"></script>
+    <script src="../js/utilities/utils.js"></script>
+    <script src="../js/utilities/page-features.js"></script>
+    <script src="../js/utilities/localize.js"></script>
+    <script src="../js/options/options-handler.js"></script>
+    <script src="../js/options/options-page.js"></script>
+    <script src="../js/options/options.js"></script>
+</body>
+
+</html>

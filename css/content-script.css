@@ -1,0 +1,538 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
+.ytb-hide-content {
+  display: none !important;
+}
+
+.ytb-hide {
+  display: none !important;
+}
+
+.ytb-overlay-container {
+  position: relative;
+}
+.ytb-overlay-container:hover > .ytb-reveal-button[type=grid] {
+  opacity: 1;
+}
+.ytb-overlay-container:hover > .ytb-reveal-button[type=grid][revealed] {
+  border: 1px solid white;
+}
+.ytb-overlay-container:not(:hover) > .ytb-reveal-button[type=grid] {
+  opacity: 0;
+}
+.ytb-overlay-container:not(:hover) > .ytb-reveal-button[type=grid][revealed] {
+  opacity: 0.65;
+  border: 0;
+}
+.ytb-overlay-container:has(> .ytb-overlay[type=horizontal] + .ytb-reveal-button:not(.ytb-hide)) {
+  padding-left: 26px;
+}
+.ytb-overlay-container:has(> .ytb-overlay[type=horizontal] + .ytb-reveal-button:not(.ytb-hide)) > ytd-comment-renderer, .ytb-overlay-container:has(> .ytb-overlay[type=horizontal] + .ytb-reveal-button:not(.ytb-hide)) > #body {
+  padding-left: 10px;
+}
+
+[ytb-blocked][ytb-overlay-type=horizontal][ytb-overlay-content-hidden=true] {
+  max-height: 140px;
+  overflow: hidden;
+}
+
+ytd-post-renderer.ytb-overlay-container > .ytb-overlay {
+  left: 0;
+  top: 0;
+}
+
+ytd-backstage-post-thread-renderer.ytb-overlay-container:has(> .ytb-reveal-button:not([revealed], .ytb-hide)) {
+  overflow: hidden;
+  height: 300px;
+}
+ytd-backstage-post-thread-renderer.ytb-overlay-container:has(> .ytb-reveal-button:not([revealed], .ytb-hide)) > .ytb-overlay {
+  left: 0;
+  top: 0;
+}
+
+.ytb-reveal-button {
+  display: flex;
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--yt-spec-text-primary);
+  color: var(--yt-spec-text-primary);
+  z-index: 999;
+  font-size: 18px;
+  left: 5px;
+  top: 5px;
+  cursor: pointer;
+  background-color: var(--yt-spec-base-background);
+}
+.ytb-reveal-button[type=horizontal] {
+  width: 26px;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+.ytb-reveal-button[type=horizontal] > div {
+  opacity: 0.55;
+}
+.ytb-reveal-button[type=horizontal]:hover > div {
+  opacity: 1;
+}
+.ytb-reveal-button[type=grid][revealed] {
+  background-color: black;
+  color: white;
+}
+.ytb-reveal-button div {
+  user-select: none;
+}
+
+.ytb-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--yt-spec-text-primary);
+  color: var(--yt-spec-text-primary);
+  background-color: var(--yt-spec-base-background);
+  z-index: 999;
+  box-sizing: border-box;
+  container-type: size;
+}
+.ytb-overlay[type=grid] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+  padding: 1em;
+}
+.ytb-overlay[type=grid] img {
+  width: 20%;
+}
+.ytb-overlay[type=grid] h2 {
+  font-size: 2em;
+}
+@container (width > 0px) {
+  .ytb-overlay[type=grid] h2 {
+    font-size: clamp(2em, 10cqw, 3em);
+  }
+}
+.ytb-overlay[type=grid] #reason {
+  text-align: center;
+  font-size: 1.5em;
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 100%;
+  /* width */
+  /* Track */
+  /* Handle */
+  /* Handle on hover */
+}
+.ytb-overlay[type=grid] #reason::-webkit-scrollbar {
+  width: 8px;
+}
+.ytb-overlay[type=grid] #reason::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ytb-overlay[type=grid] #reason::-webkit-scrollbar-thumb {
+  background: var(--yt-spec-text-secondary);
+  border-radius: 5px;
+}
+.ytb-overlay[type=grid] #reason::-webkit-scrollbar-thumb:hover {
+  background: var(--yt-spec-text-disabled);
+}
+.ytb-overlay[type=grid] #buttons a {
+  color: var(--yt-spec-call-to-action);
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 0.5em;
+}
+.ytb-overlay[type=horizontal] {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  font-size: 9px;
+  width: calc(100% - 26px);
+}
+.ytb-overlay[type=horizontal] .details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+.ytb-overlay[type=horizontal] img {
+  height: 50%;
+  min-height: 42px;
+  max-height: 100px;
+}
+.ytb-overlay[type=horizontal] h2 {
+  font-size: 2em;
+}
+@container (height > 0px) {
+  .ytb-overlay[type=horizontal] h2 {
+    font-size: clamp(1.5em, 15cqh, 3em);
+  }
+}
+.ytb-overlay[type=horizontal] #reason {
+  font-size: 1.5em;
+  overflow-y: auto;
+  min-height: 20%;
+  max-height: 100%;
+  /* width */
+  /* Track */
+  /* Handle */
+  /* Handle on hover */
+}
+.ytb-overlay[type=horizontal] #reason::-webkit-scrollbar {
+  width: 8px;
+}
+.ytb-overlay[type=horizontal] #reason::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ytb-overlay[type=horizontal] #reason::-webkit-scrollbar-thumb {
+  background: var(--yt-spec-text-secondary);
+  border-radius: 5px;
+}
+.ytb-overlay[type=horizontal] #reason::-webkit-scrollbar-thumb:hover {
+  background: var(--yt-spec-text-disabled);
+}
+.ytb-overlay[type=horizontal] #buttons {
+  margin-top: 0.5em;
+}
+.ytb-overlay[type=horizontal] #buttons a {
+  color: var(--yt-spec-call-to-action);
+  font-size: 1.5em;
+  cursor: pointer;
+  padding-right: 0.5em;
+}
+.ytb-overlay[type=watch] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+  padding: 1em;
+}
+.ytb-overlay[type=watch] .miniplayer-buttons {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.ytb-overlay[type=watch] .miniplayer-buttons > div {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.ytb-overlay[type=watch] .miniplayer-buttons button {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  width: 50px;
+  height: 50px;
+  pointer-events: visible;
+  background: none;
+  border: none;
+  opacity: 0.8;
+  cursor: pointer;
+}
+.ytb-overlay[type=watch] .miniplayer-buttons button:hover {
+  opacity: 1;
+}
+.ytb-overlay[type=watch] .miniplayer-buttons .expand {
+  top: 0px;
+  left: 5px;
+}
+.ytb-overlay[type=watch] .miniplayer-buttons .close {
+  top: 0px;
+  right: 5px;
+}
+.ytb-overlay[type=watch] .miniplayer-buttons .next-video {
+  top: calc(50% - 25px);
+  right: 15px;
+}
+.ytb-overlay[type=watch] .miniplayer-buttons .prev-video {
+  top: calc(50% - 25px);
+  left: 5px;
+}
+.ytb-overlay[type=watch] img {
+  height: 20%;
+  min-height: 30px;
+  max-height: 100px;
+}
+@container (height > 0px) {
+  .ytb-overlay[type=watch] h2 {
+    font-size: clamp(1em, 10cqh, 5em);
+  }
+  .ytb-overlay[type=watch] #reason {
+    text-align: center;
+    font-size: clamp(0.75em, 5cqh, 2.5em);
+    overflow-y: auto;
+    max-height: 100%;
+    /* width */
+    /* Track */
+    /* Handle */
+    /* Handle on hover */
+  }
+  .ytb-overlay[type=watch] #reason::-webkit-scrollbar {
+    width: 8px;
+  }
+  .ytb-overlay[type=watch] #reason::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ytb-overlay[type=watch] #reason::-webkit-scrollbar-thumb {
+    background: var(--yt-spec-text-secondary);
+    border-radius: 5px;
+  }
+  .ytb-overlay[type=watch] #reason::-webkit-scrollbar-thumb:hover {
+    background: var(--yt-spec-text-disabled);
+  }
+  .ytb-overlay[type=watch] #revealButton, .ytb-overlay[type=watch] a {
+    color: var(--yt-spec-call-to-action);
+    font-size: clamp(0.75em, 5cqh, 1.5em);
+    cursor: pointer;
+    padding: clamp(0.1em, 10cqh, 0.5em);
+    padding: 0.5em;
+  }
+  .ytb-overlay[type=watch] #revealButton {
+    color: var(--yt-spec-text-primary);
+    text-decoration: underline;
+    margin-top: 0.5em;
+  }
+  .ytb-overlay[type=watch] #buttons {
+    flex-grow: 1;
+    display: flex;
+    align-items: end;
+  }
+}
+
+.ytb-dropdown-container {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.ytb-dropdown-button {
+  display: flex;
+  position: relative;
+  align-items: center;
+  background-color: transparent;
+  color: var(--yt-spec-text-primary);
+  font-size: 1.3em;
+  text-align: left;
+  height: 36px;
+  border: 0;
+  width: 100%;
+  cursor: pointer;
+}
+.ytb-dropdown-button:hover {
+  background-color: rgba(128, 128, 128, 0.25);
+}
+.ytb-dropdown-button img {
+  padding: 0 12px 0 8px;
+  height: 80%;
+}
+
+.ytb-fill {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.ytb-password-modal {
+  background-color: var(--yt-spec-raised-background);
+  border: none;
+  border-radius: 2rem;
+  color: var(--yt-spec-text-primary);
+  font-size: 1.6rem;
+  font-family: "Roboto", "Arial", sans-serif;
+}
+.ytb-password-modal::backdrop {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.35);
+}
+.ytb-password-modal > img {
+  width: 83px;
+  padding-bottom: 1rem;
+}
+.ytb-password-modal > div {
+  padding-bottom: 2rem;
+}
+.ytb-password-modal > div p {
+  opacity: 0.65;
+}
+.ytb-password-modal .password-input-container {
+  position: relative;
+}
+.ytb-password-modal .password-input-container input#ytb_modal_password {
+  width: 45rem;
+  height: 3rem;
+  padding: 0 4rem 0 1rem;
+  color: var(--yt-spec-text-primary);
+  font-size: 2rem;
+  background-color: var(--ytd-searchbox-background);
+  border: 1px solid var(--ytd-searchbox-legacy-border-color);
+  border-radius: 1rem;
+}
+.ytb-password-modal .password-input-container input#ytb_modal_password::placeholder {
+  font-size: 1.6rem;
+}
+.ytb-password-modal .password-input-container button#password_toggle {
+  position: absolute;
+  background: none;
+  border: none;
+  right: 1rem;
+  top: 0.55rem;
+  font-size: 2rem;
+  opacity: 0.75;
+  color: var(--yt-spec-text-primary);
+  cursor: pointer;
+}
+.ytb-password-modal .password-input-container button#password_toggle:hover {
+  opacity: 0.9;
+}
+.ytb-password-modal button#close {
+  font-size: 2rem;
+  opacity: 0.65;
+  cursor: pointer;
+  color: var(--yt-spec-text-primary);
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+}
+.ytb-password-modal button#close:hover {
+  opacity: 0.85;
+}
+.ytb-password-modal #password_fail_message {
+  padding-top: 0.5rem;
+  color: rgb(255, 28, 28);
+  font-weight: 600;
+}
+.ytb-password-modal #password_fail_message.move {
+  animation: move 0.5s;
+}
+@keyframes move {
+  from {
+    transform: translateX(10px);
+  }
+  to {
+    transform: translateX(0px);
+  }
+}
+.ytb-password-modal menu {
+  padding-top: 2rem;
+  display: flex;
+  justify-content: end;
+  gap: 1rem;
+}
+.ytb-password-modal menu button {
+  font-size: 2rem;
+  background-color: transparent;
+  border: 1px solid var(--yt-spec-text-secondary);
+  box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  color: var(--yt-spec-text-primary);
+  height: 4rem;
+  cursor: pointer;
+}
+.ytb-password-modal menu button:hover {
+  background-color: var(--ytd-searchbox-legacy-border-color);
+}
+.ytb-password-modal menu button:active {
+  opacity: 0.85;
+}
+.ytb-password-modal menu button#continue {
+  color: white;
+  background-color: #1D4ED8;
+  border: none;
+  min-width: 130px;
+}
+.ytb-password-modal menu button#continue:hover {
+  background-color: #2b5add;
+}
+.ytb-password-modal .checkbox-container {
+  position: relative;
+}
+.ytb-password-modal .checkbox-container:hover .checkmark {
+  opacity: 1;
+}
+.ytb-password-modal .checkbox-container input[type=checkbox] {
+  width: 0px;
+  height: 0px;
+  opacity: 0;
+  margin-right: 16px;
+}
+.ytb-password-modal .checkbox-container input[type=checkbox]:checked ~ .checkmark {
+  display: block;
+  background-color: #1D4ED8;
+  border-color: #1D4ED8;
+}
+.ytb-password-modal .checkbox-container input[type=checkbox]:checked ~ .checkmark span {
+  display: block;
+}
+.ytb-password-modal .checkbox-container .checkmark {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  box-sizing: content-box;
+  border: 1px solid var(--yt-spec-text-primary);
+  border-radius: 0.125rem;
+  width: 16px;
+  height: 16px;
+  left: 0px;
+  top: 0px;
+  opacity: 0.85;
+}
+.ytb-password-modal .checkbox-container .checkmark span {
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  display: none;
+  width: 4px;
+  height: 8px;
+  border: 3px solid white;
+  border-top-width: 0px;
+  border-left-width: 0px;
+  transform: rotate(45deg);
+}
+
+.ytb-channel-block-button {
+  display: none;
+  color: red;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.85;
+}
+.ytb-channel-block-button:hover {
+  opacity: 1;
+}
+
+[ytb-element-id]:not(ytd-comment-thread-renderer, ytd-reel-video-renderer) [ytb-has-channel-block-button][ytb-always-show-channel-block] .ytb-channel-block-button,
+ytd-watch-metadata [ytb-has-channel-block-button][ytb-always-show-channel-block] .ytb-channel-block-button,
+[ytb-channel-renderer] [ytb-has-channel-block-button][ytb-always-show-channel-block] .ytb-channel-block-button,
+ytd-comment-thread-renderer[ytb-element-id] > ytd-comment-renderer [ytb-has-channel-block-button][ytb-always-show-channel-block] .ytb-channel-block-button,
+ytd-reel-video-renderer[ytb-element-id] ytd-reel-player-header-renderer [ytb-has-channel-block-button][ytb-always-show-channel-block] .ytb-channel-block-button {
+  display: inline-block;
+}
+[ytb-element-id]:not(ytd-comment-thread-renderer, ytd-reel-video-renderer) [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button,
+ytd-watch-metadata [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button,
+[ytb-channel-renderer] [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button,
+ytd-comment-thread-renderer[ytb-element-id] > ytd-comment-renderer [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button,
+ytd-reel-video-renderer[ytb-element-id] ytd-reel-player-header-renderer [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button {
+  display: none;
+}
+[ytb-element-id]:not(ytd-comment-thread-renderer, ytd-reel-video-renderer):hover [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button,
+ytd-watch-metadata:hover [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button,
+[ytb-channel-renderer]:hover [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button,
+ytd-comment-thread-renderer[ytb-element-id] > ytd-comment-renderer:hover [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button,
+ytd-reel-video-renderer[ytb-element-id] ytd-reel-player-header-renderer:hover [ytb-has-channel-block-button]:not([ytb-always-show-channel-block]) .ytb-channel-block-button {
+  display: inline-block;
+}
+
+/*# sourceMappingURL=content-script.css.map */

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="PopupTitle">Popup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/popup.css">
+</head>
+<body class="dark w-[360px] text-yt-50 text-base bg-black">
+
+    <div id="password_request" class="hidden absolute px-4 w-full h-full bg-slate-900 z-10">
+        <img src="../images/icon-128.png" class="w-20 pt-4" data-i18n-alt="ExtName" alt="Video Blocker for YouTube™"></img>
+        
+        <h1 data-i18n="PasswordModalTitle" class="text-2xl pt-2">Password protected</h1>
+        <p data-i18n="EnterPassword" class="text-base opacity-60 pb-4">Please enter your password to continue.</p>
+
+        <div class="password-input-container flex items-center">
+            <input 
+                id="password" 
+                type="password" 
+                data-i18n-placeholder="PasswordInputPlaceholder"
+                placeholder="Enter your password"
+                class="w-full h-8 text-yt-50 bg-slate-950 border-yt-200 border-0 border-b-[1px] outline-none pl-2 pr-8">
+            </input>
+            <button password-toggle class="absolute right-6">
+                <i class="fa fa-eye"></i>
+            </button>
+        </div>
+
+        <div class="pt-2" id="keep_unlocked_container">
+            <label class="group relative pl-6 cursor-pointer">
+                <input id="keep_unlocked" type="checkbox" class="peer absolute opacity-0 h-0 w-0">
+                <span class="group absolute flex justify-center items-center bg-transparent peer-checked:bg-blue-500 box-content border border-yt-400 group-hover:border-blue-500 peer-focus-visible:border-2 peer-focus-visible:border-black dark:peer-focus-visible:border dark:peer-focus-visible:border-white rounded-sm w-4 h-4 left-0 top-[3px]">
+                    <span class="w-[6px] h-[10px] border-white border-[3px] border-t-0 border-l-0 rotate-45 border-wi hidden group-peer-checked:block"></span>
+                </span>
+                <span id="keep_unlocked_label" data-i18n="KeepUnlockedCheckbox">Keep unlocked for some time</span>
+            </label>
+        </div>
+
+        <p id="invalid_password" data-i18n="InvalidPassword" class="pt-2 text-red-500 hidden">Invalid password.</p>
+
+        <button id="continue" disabled data-i18n="Continue" class="absolute disabled:opacity-50 disabled:pointer-events-none right-0 bottom-0 m-4 min-w-[100px] text-yt-50 bg-blue-700 py-1 px-2 opacity-80 hover:opacity-100 active:opacity-50 shadow-sm dark:shadow-md shadow-yt-600 dark:shadow-yt-800">Continue</button>
+    </div>
+    
+    <div class="w-full bg-red-600 flex flex-col items-center py-3 px-2">
+        <div class="flex flex-col items-center">
+
+            <!-- Switch -->
+            <label class="switch" for="ext_switch">
+                <input id="ext_switch" checked type="checkbox">
+                <span class="slider round"></span>
+            </label>
+
+            <!-- Disable button -->
+            <button id="disable_button" class="hide mt-3 p-1 bg-blue-600 br-2 rounded text-white">Click here 10 times to disable</button>
+
+            <!-- <div class="w-4 h-4 bg-slate-50"></div> -->
+            <span id="switch_status" data-i18n="PopupExtensionEnabled">Extension is enabled</span>
+
+            <!-- Harder to disable Checkbox -->
+            <div class="flex flex-col items-center mt-3" id="hard_disable_checkbox_container">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="hard_disable_checkbox">
+                    <span class="checkmark"></span>
+                    <span data-i18n="PopupExtensionDisableCheckbox">Make it harder to disable</span>
+                </label>
+            </div>
+
+        </div>
+
+        <div id="enable_in" class="hide flex flex-col justify-center items-center text-center">
+            <!-- 0 - 5m - 15m - 30m - 1h - 2h - 5h - 10h - 15h - 24h -->
+            <div class="range-container">
+                <input type="range" value="0" min="0" max="9" step="1" name="" id="">
+            </div>
+
+            <div id="enable_in_time" class="hide"></div>
+            <div id="remaining_time" class="hide"></div>
+        </div>
+
+    </div>
+    <div class="bg-blue-800 w-full break-normal py-2 flex flex-col">
+        <div id="status" data-i18n="PopupNoConnection" class="flex hide flex-col items-center px-2 text-lg text-center">
+            No connection to YouTube page, please reload the tab.
+        </div>
+        <div id="videos" class="hide flex flex-col items-center px-2">
+            <div data-i18n="PopupBlockedVideos" class="text-2xl font-semibold">Blocked videos</div>
+            <div class="flex w-full justify-around">
+                <div><span id="count" class="font-semibold text-lg">0</span> <span data-i18n="PopupInThisTab">in this tab</span></div>
+                <div><span id="total_count" class="font-semibold text-lg">0</span> <span data-i18n="PopupTotal">total</span></div>
+            </div>
+        </div>
+        <div id="comments" class="hide flex flex-col items-center px-2">
+            <div data-i18n="PopupBlockedComments" class="text-2xl font-semibold">Blocked comments</div>
+            <div class="flex w-full justify-around">
+                <div><span id="count" class="font-semibold text-lg">0</span> <span data-i18n="PopupInThisTab">in this tab</span></div>
+                <div><span id="total_count" class="font-semibold text-lg">0</span> <span data-i18n="PopupTotal">total</span></div>
+            </div>
+        </div>
+        <div id="posts" class="hide flex flex-col items-center px-2">
+            <div data-i18n="PopupBlockedPosts" class="text-2xl font-semibold">Blocked posts</div>
+            <div class="flex w-full justify-around">
+                <div><span id="count" class="font-semibold text-lg">0</span> <span data-i18n="PopupInThisTab">in this tab</span></div>
+                <div><span id="total_count" class="font-semibold text-lg">0</span> <span data-i18n="PopupTotal">total</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="py-4 px-6 bg-red-600 flex flex-col">
+        <label class="checkbox-container">
+            <input type="checkbox" id="show_overlays">
+            <span class="checkmark"></span>
+            <span data-i18n="ShowOverlays">Show overlays</span>
+        </label>
+
+        <div id="show_overlays_additional_options" class="pl-2 pt-2 hidden">
+            <label class="checkbox-container mb-1">
+                <input type="checkbox" id="show_video_overlay">
+                <span class="checkmark"></span>
+                <span data-i18n="ShowVideoOverlay">Show overlay for videos</span>
+            </label>
+            <label class="checkbox-container my-1">
+                <input type="checkbox" id="show_comment_overlay">
+                <span class="checkmark"></span>
+                <span data-i18n="ShowCommentOverlay">Show overlay for comments</span>
+            </label>
+            <label class="checkbox-container my-1">
+                <input type="checkbox" id="show_post_overlay">
+                <span class="checkmark"></span>
+                <span data-i18n="ShowPostOverlay">Show overlay for posts</span>
+            </label>
+        </div>
+
+
+        <div class="flex justify-center pt-4">
+            <button id="option_button" class="group flex w-full bg-blue-700 opacity-90 hover:opacity-100 justify-center items-center gap-2 text-xl py-1 font-semibold cursor-pointer rounded-lg">
+                <i class="fa fa-cog transition-transform duration-500 group-hover:rotate-45 group-focus-visible:rotate-45"></i>
+                <span data-i18n="PopupGoToOptionsPage">Go to Options Page</span>
+            </button>
+        </div>
+        
+    </div>
+    
+    <script src="../libs/jquery-3.6.0.min.js"></script>
+    <script src="../js/managers/message-manager.js"></script>
+    <script src="../js/managers/storage-manager.js"></script>
+    <script src="../js/options/options-handler.js"></script>
+    <script src="../js/utilities/page-features.js"></script>
+    <script src="../js/utilities/constants.js"></script>
+    <script src="../js/utilities/utils.js"></script>
+    <script src="../js/utilities/localize.js"></script>
+    <script src="../js/utilities/password-modal.js"></script>
+    <script src="../js/options/popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Blocker - Advanced Guide</title>
+    <script src="../../../js/utilities/theme.js"></script>
+    <link rel="stylesheet" href="../../../css/docs.css">
+</head>
+<body>
+    <div class="contents">
+        <h2>About Keywords</h2>
+        <p>Before all, it's important to understand about keywords (as they are referenced a lot in this document).</p>
+        <p>They are the text that you separate with comma or lines in the text areas.</p>
+        <p>
+            Example: if you type the following text <code>official trailer, music video, tutorial</code> in the text area <i>"Block titles that includes"</i><br>
+            Each text separated by comma is a <code>keyword</code>, which in this case, will block videos that title includes <code>official trailer</code>, <code>music video</code> or <code>tutorial</code>.
+        </p>
+
+        <p><b>What if a keyword need to contain a comma or a line break?</b></p>
+        <p>You can add a <code>\</code> (backslash) before a comma or line break, then they will be part of the keyword.</p>
+        <p>
+            Example: <code>banana, apple\, orange and melon, watermelon</code><br>
+            Keyword 1: <code>banana</code>.<br>
+            Keyword 2: <code>apple, orange and melon</code>.<br>
+            Keyword 3: <code>watermelon</code>.<br>
+        </p>
+
+        <p><b>Note</b>: not all text areas are separated by comma, below every text area show what should be used.</p>
+        <img src="../../../images/docs/en/keyword separation.png" alt="Example keyword separation."> 
+
+        <hr>
+        <h2>Negative Keywords</h2>
+        <p>Do the <b>opposite</b> effect of a keyword, it will block content that does <b>not</b> match the keyword.</p>
+        <p>To make a negative keyword you must insert a <code>!</code> (exclamation mark) before the keyword.</p>
+        <p>
+            Example: <code>!banana</code><br>
+            ❌: <code>Footage of a monkey eating a <span>banana</span></code> - this content will <b>not</b> be blocked<br>
+            ✅: <code>Tips for learning any language</code> - does not contain <code>banana</code>, so it will be blocked <br>
+        </p>
+
+        <hr>
+        <h2>Regex</h2>
+        <p>You can use <a target="_blank" rel="noopener noreferrer" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions">Regex</a> to match very specific patterns of text.</p>
+        <p>
+            <code class="regex">/aaa+/i</code>: will block content that include <code>aaaAAAAAaaaaAAAaaa</code> or <code>aaaaaaaa</code><br>
+            <code class="regex">/top \d+/</code>: will block content that include <code>top 10 movies</code>, <code>top 5 upcoming movies</code>
+        </p>
+
+        <p>
+            Supports <b>negative</b> too, by adding <code>!</code> (exclamation mark) before the regex. <br>
+            Example: <code class="regex"><span>!</span>/^a/i</code> will block content that does <b>not</b> start with <code>a</code>
+        </p>
+
+        <hr>
+        <h2 id="ANDoperator">AND operator</h2>
+        <p>By adding <code>$&</code> it will block any content that has every text between <code>$&</code>'s</p>
+        <p>
+            Example: <code>chocolate <span>$&</span> cake</code>: will block content that includes <code>chocolate</code> <b>AND</b> <code>cake</code><br>
+            ✅: <code>How to Make the Most Amazing <span>Chocolate</span> <span>Cake</span></code><br>
+            ❌: <code>Easy <span>chocolate</span> biscuit recipe.</code> - doesn't have <code>cake</code> so it will not be blocked<br>
+            ✅: <code>How to Choose the Right <span>Chocolate</span> for Your <span>Cake</span></code><br>
+            ❌: <code>How to Make Birthday <span>Cake</span></code><br>
+        </p>
+
+        <hr>
+        <h2>Options</h2>
+
+        <h3>Case sensitive:</h3>
+        <p>Keywords will be restricted to lowercases and uppercases</p>
+        <p>
+            Example: <code>be</code> - will not block contents such as <code>BE</code>, <code>bE</code> or <code>Be</code> <br>
+            ❌: <code><span>Be</span>st TV Shows</code> - not blocked. <br>
+            ❌: <code>PLEASE, <span>BE</span> NICE!</code> - not blocked. <br>
+            ✅: <code>I love <span>be</span>es</code> - blocked. <br>
+            ✅: <code>Hey, how you <span>be</span>en?</code> - blocked. <br>
+            ✅: <code>To <span>be</span>, or not to <span>be</span>, that is the question</code> - blocked. <br>
+            ✅: <code>please descri<span>be</span> the problem</code> - blocked.
+        </p>
+
+        <h3>Exact match:</h3>
+        <p>Keywords must match exactly the full content.</p>
+        <p>
+            Example: <code>funny video</code> <br>
+            ❌: <code>This is a very <span>funny video</span></code> - not blocked. <br>
+            ❌: <code><span>Funny Video</span>s Compilation</code> - not blocked. <br>
+            ❌: <code>very funny, this video is awesome</code> - not blocked. <br>
+            ❌: <code>what a <span>funny video</span></code> - not blocked. <br>
+            ✅: <code><span>Funny Video</span></code> - blocked. <br>
+            ✅: <code><span>funny video</span></code> - blocked. <br>
+            ❌: <code><span>funny video</span><b>.</b></code> - not blocked.
+        </p>
+
+        <h3>Word Boundary:</h3>
+        <p>Restrict keyword to not be inside a word or text</p>
+        <p>
+            Example: <code>arm</code> <br>
+            ❌: <code>Making A Plate <span>Arm</span>or</code> - not blocked. <br>
+            ❌: <code>an <span>arm</span>y of soldiers</code> - not blocked. <br>
+            ❌: <code>That can be h<span>arm</span>ful</code> - not blocked. <br>
+            ✅: <code>I broke my <span>arm</span> twice already</code> - blocked. <br>
+            ✅: <code>MY <span>ARM</span> IS VERY STRONG</code> - blocked.
+        </p>
+
+        <hr>
+        <h2 id="modifiers">Modifiers</h2>
+        <p>With modifiers you can overwrite options for just a specific keyword, or even modify how they work.</p>
+        <p>Modifiers must be in this format <code>${MODIFIER_NAME}</code> (or <code>${MODIFIER_NAME: MODIFIER_VALUE}</code> for modifiers that need a value)</p>
+        <p>You must insert them before a keyword, below there's a list of modifiers that you can use and what they do, also a bunch of examples.</p>
+
+        <p><b>Available Modifiers:</b></p>
+        <table role="table">
+            <thead>
+            <tr>
+                <th>Modifiers</th>
+                <th>Need Value?</th>
+                <th>What it Does</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>casesensitive, cs</td>
+                <td>no</td>
+                <td>change keyword to be <code>case sensitive</code>.</td>
+            </tr>
+            <tr>
+                <td>exact, em, exactmatch</td>
+                <td>no</td>
+                <td>enable <code>exact match</code> for the keyword.</td>
+            </tr>
+            <tr>
+                <td>bound, wb, wordbound</td>
+                <td>no</td>
+                <td>enable <code>word boundary</code> for the keyword.</td>
+            </tr>
+            <tr>
+                <td>shorts, short</td>
+                <td>no</td>
+                <td>apply keyword only for videos that is shorts.</td>
+            </tr>
+            <tr>
+                <td>live, lives</td>
+                <td>no</td>
+                <td>apply keyword only for live videos.</td>
+            </tr>
+            <tr>
+                <td>premiere, upcoming</td>
+                <td>no</td>
+                <td>apply keyword only for premiere/upcoming videos.</td>
+            </tr>
+            <tr>
+                <td>duration, length</td>
+                <td>yes</td>
+                <td>apply keyword only for videos longer than value.</td>
+            </tr>
+            <tr>
+                <td>minduration, minlength, shorter</td>
+                <td>yes</td>
+                <td>apply keyword only for videos shorter than value.</td>
+            </tr>
+            <tr>
+                <td>older, old</td>
+                <td>yes</td>
+                <td>apply keyword only for videos older than the value of days.</td>
+            </tr>
+            <tr>
+                <td>newer, new</td>
+                <td>yes</td>
+                <td>apply keyword only for videos newer than the value of days.</td>
+            </tr>
+            <tr>
+                <td>minduration, minlength, shorter</td>
+                <td>yes</td>
+                <td>apply keyword only for videos shorter than value.</td>
+            </tr>
+            <tr>
+                <td>content, text, ctn, title, tt</td>
+                <td>yes</td>
+                <td>apply keyword when video's title, comment or post contain value.</td>
+            </tr>
+            <tr>
+                <td>description, desc</td>
+                <td>yes</td>
+                <td>apply keyword when description contain value.</td>
+            </tr>
+            <tr>
+                <td>tag, tags</td>
+                <td>yes</td>
+                <td>apply keyword when video tags includes value.</td>
+            </tr>
+            <tr>
+                <td>channel, user, ch</td>
+                <td>yes</td>
+                <td>apply keyword for channels that is the value.</td>
+            </tr>
+            <tr>
+                <td>video, isvideo</td>
+                <td>no</td>
+                <td>apply keyword if content is a video.</td>
+            </tr>
+            <tr>
+                <td>comment, iscomment</td>
+                <td>no</td>
+                <td>apply keyword if content is a comment.</td>
+            </tr>
+            <tr>
+                <td>post, ispost</td>
+                <td>no</td>
+                <td>apply keyword if content is a post.</td>
+            </tr>
+            <tr>
+                <td>isplaylistvideo, pv</td>
+                <td>no</td>
+                <td>apply keyword if the video is from playlist.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p>
+            <b>Negative Modifiers</b>: <br>
+            Will do the <b>opposite</b> of the modifiers by adding a <code>!</code> (exclamation mark) before modifier name. (Examples Below)<br>
+        </p>
+
+        <h2>Modifier examples:</h2>
+        <p>
+            <code>orange, <span>${cs}</span> banana, apple</code>: the keyword <code>banana</code> will be Case Sensitive.<br>
+            ❌: <code>JUST EAT <span>BANANA</span></code> - not blocked. <br>
+            ✅: <code><span>banana</span> is my favorite fruit</code> - blocked. <br><br>
+
+            <code>orange, <span>${!cs}</span> banana, apple</code>: the keyword <code>banana</code> will <u><b>not</b></u> be Case Sensitive.<br>
+            ✅: <code>JUST EAT <span>BANANA</span></code> - blocked. <br>
+            ✅: <code><span>banana</span> is my favorite fruit</code> - blocked. <br><br>
+
+            <code><span>${ch: badChannel01 }</span> banana</code>: it will block content that include <code>banana</code> <b>and</b> is from the channel <code>badChannel01</code>.<br>
+            <code><span>${!ch: badChannel01 }</span> banana</code>: it will block content that include <code>banana</code> <b>and</b> is <u><b>not</b></u> from the channel <code>badChannel01</code>.<br>
+        </p>
+        <h2>Examples for text areas that block channels:</h2>
+        <p>
+            <code>badChannel01</code>: it will block content from <code>badChannel01</code>.<br>
+            <code>badChannel01, Not A Good Channel</code>: it will block content from <code>badChannel01</code> or from <code>Not A Good Channel</code>.<br>
+            <code><span>!</span>badChannel01</code>: it will block content that is <u><b>not</b></u> from <code>badChannel01</code><br>
+            <code><span>${content: banana }</span> badChannel01</code>: it will block content that is from <code>badChannel01</code> <b>and</b> the content contains <code>banana</code>.<br>
+            <code><span>${!content: banana }</span> badChannel01</code>: it will block content that is from <code>badChannel01</code> <b>and do not</b> contain <code>banana</code>.<br>
+            <code><span>${content: banana }</span> <span>${!ctn: apple }</span> badChannel01</code>: it will block content that is from <code>badChannel01</code> <b>and</b> the content contains <code>banana</code> <b>and</b> does <b>not</b> contains <code>apple</code>.<br>
+        </p>
+
+        <p><b>You can use modifiers on regex keywords too.</b></p>
+        <p><code><span>${ch: SomeChannel}</span> <span class="regex">/(highlights|tutorial)/i</span></code>: block any content from <code>SomeChannel</code> that contains <code>highlights</code> or <code>tutorial</code>.</p>
+        
+        <h2>Good Blocking!</h2>
+
+        <div class="div"></div>
+
+        <button class="back-to-options">Back to Options</button>
+        
+    </div>
+    <script src="../../../js/utilities/page-features.js"></script>
+    <script src="../../../js/options/doc.js"></script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloqueador de Vídeo - Guia Avançado</title>
+    <script src="../../../js/utilities/theme.js"></script>
+    <link rel="stylesheet" href="../../../css/docs.css">
+</head>
+<body>
+    <div class="contents">
+        <h2>Sobre palavra-chaves</h2>
+        <p>Antes de tudo, é importante saber oque é palavra-chaves já que são referenciadas muita vezes nesse documento.</p>
+        <p>Eles são os textos que você separa com vírgula ou quebra de linhas.</p>
+        <p>
+            Exemplo: se você digitar o seguinte texto <code>trailer oficial, musica, tutorial</code> na caixa de texto <i>Bloquear vídeos que o título inclui</i><br>
+            Cada texto separado pela vírgula é uma <code>palavra-chave</code>, que no caso, vai bloquear vídeos que o título contenha <code>trailer oficial</code>, <code>musica</code> ou <code>tutorial</code>
+        </p>
+
+        <p><b>E se uma palavra-chave precisar de vírgula ou quebra linha?</b></p>
+        <p>Você pode adicionar um <code>\</code> (barra inversa) antes da vírgula ou quebra linha, assim será parte da palavra-chave</p>
+        <p>
+            Exemplo: <code>banana, maçã\, laranja e melão, melancia</code><br>
+            Palavra-chave 1: <code>banana</code>.<br>
+            Palavra-chave 2: <code>maçã, laranja e melão</code>.<br>
+            Palavra-chave 3: <code>melancia</code>.<br>
+        </p>
+
+        <p><b>Observação</b>: nem todos os textos são separados por vírgula, veja embaixo de cada caixa de texto para saber oque deve ser usado.</p>
+        <img src="../../../images/docs/pt_BR/keyword separation.png" alt="Example keyword separation."> 
+
+        <hr>
+        <h2>Palavra-chaves Negativas</h2>
+        <p>Faz o efeito <b>oposto</b> da palavra-chave, vai bloquear conteúdo que <b>não</b> bate com a palavra-chave.</p>
+        <p>Para transformar uma palavra-chave em negativa você deve adicionar um <code>!</code> (exclamação) antes da palavra-chave</p>
+        <p>
+            Exemplo: <code>!banana</code><br>
+            ❌: <code>Filmagem de um macaco comendo <span>banana</span></code> - esse conteúdo <b>não</b> vai ser bloqueado<br>
+            ✅: <code>Dicas para aprender qualquer linguagem</code> - não contém <code>banana</code>, então vai ser bloqueado <br>
+        </p>
+
+        <hr>
+        <h2>Regex</h2>
+        <p>Você pode usar <a target="_blank" rel="noopener noreferrer" href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions">Regex</a> para bater com algum padrão expecifico de texto.</p>
+        <p>
+            <code class="regex">/aaa+/i</code>: vai bloquear conteúdo que inclui <code>aaaAAAAAaaaaAAAaaa</code> ou <code>aaaaaaaa</code><br>
+            <code class="regex">/top \d+/</code>: vai bloquear conteúdo que inclui <code>top 10 filmes</code>, <code>Top 5 Livros de Terror</code>
+        </p>
+
+        <p>
+            É possivel usar regex <b>negativo</b> também, adicionando um <code>!</code> (exclamação) antes do regex.<br>
+            Exemplo: <code class="regex"><span>!</span>/^a/i</code> vai bloquear conteúdo que <b>não</b> começa com <code>a</code>
+        </p>
+
+        <hr>
+        <h2 id="ANDoperator">Operador E</h2>
+        <p>Adicionando <code>$&</code> vai bloquear conteúdo que inclui <b>todos</b> os textos entre os <code>$&</code>s</p>
+        <p>
+            Exemplo: <code>chocolate <span>$&</span> bolo</code> vai bloquear conteúdo que contém <code>chocolate</code> <b>e</b> <code>bolo</code><br>
+            ✅: <code>Como Fazer <span>Bolo</span> de <span>Chocolate</span> Delicioso</code><br>
+            ❌: <code>Biscoitos de <span>chocolate</span>.</code> - não contém <code>bolo</code>, então não vai ser bloqueado<br>
+            ✅: <code>qual <span>chocolate</span> é bom pra <span>bolo</span>?</code><br>
+            ❌: <code><span>Bolo</span> de aniversario</code><br>
+        </p>
+
+        <hr>
+        <h2>Opções</h2>
+
+        <h3>Diferenciar maiúsculas de minúsculas:</h3>
+        <p>As letras maiúsculas e minúsculas devem ser exatamente como está no conteúdo.</p>
+        <p>
+            Exemplo: <code>me</code> - não vai bloquear conteúdos como <code>ME</code>, <code>mE</code> ou <code>Me</code> <br>
+            ❌: <code><span>Me</span>lhores Séries na Netflix</code> - não bloqueado. <br>
+            ❌: <code>POR FAVOR, <span>ME</span> SIGA NO TWITTER</code> - não bloqueado. <br>
+            ✅: <code>eu <span>me</span>smo arrumei a maquina</code> - bloqueado. <br>
+            ✅: <code>Esse filme me deixou com muito <span>me</span>do</code> - bloqueado. <br>
+            ✅: <code>o volu<span>me</span> do vídeo ta muito alto</code> - bloqueado. <br>
+            ✅: <code>Esse vídeo <span>me</span> ajudou muito</code> - bloqueado. <br>
+        </p>
+
+        <h3>Combinação exata:</h3>
+        <p>As palavras-chaves tem que bater com o conteúdo inteiro.</p>
+        <p>
+            Example: <code>engraçado</code> <br>
+            ❌: <code>Esse vídeo é muito <span>engraçado</span>!</code> - não bloqueado. <br>
+            ❌: <code>Videos <span>Engraçado</span>s Aleatórios</code> - não bloqueado. <br>
+            ❌: <code>você é <span>engraçado</span>, parabéns</code> - não bloqueado. <br>
+            ✅: <code><span>Engraçado</span></code> - bloqueado. <br>
+            ✅: <code><span>engraçado</span></code> - bloqueado. <br>
+            ❌: <code><span>engraçado</span><b>!</b></code> - não bloqueado.
+        </p>
+
+        <h3>Espaçamento de palavras:</h3>
+        <p>A palavra-chave não deve estar dentro de alguma palavra.</p>
+        <p>
+            Exemplo: <code>me</code> <br>
+            ❌: <code><span>Me</span>lhores Séries na Netflix</code> - não bloqueado. <br>
+            ❌: <code>Esse filme me deixou com muito <span>me</span>do</code> - não bloqueado. <br>
+            ❌: <code>esse cara merece uma <span>me</span>dalha por isso</code> - não bloqueado. <br>
+            ❌: <code>recla<span>me</span> para o administrador</code> - não bloqueado. <br>
+            ✅: <code><span>Me</span> deram um golpe.</code> - bloqueado. <br>
+            ✅: <code>ele <span>me</span> representou</code> - bloqueado. <br>
+            ✅: <code>NEM <span>ME</span> FALE</code> - bloqueado.
+        </p>
+
+        <hr>
+        <h2 id="modifiers">Modificadores</h2>
+        <p>Com modificadores você pode sobreescrever opções para uma palavra-chave especifica, ou até mudar como ela funciona.</p>
+        <p>Modificadores devem ser nesse formato <code>${NOME_DO_MODIFICADOR}</code> (ou <code>${NOME_DO_MODIFICADOR: VALOR}</code> para modificadores que precisam de valor).</p>
+        <p>Você deve inserir modificadores antes da palavra-chave, abaixo tem uma lista de modificadores e suas funções. Em seguida exemplos.</p>
+
+        <p><b>Modificadores disponiveis:</b></p>
+        <table role="table">
+            <thead>
+            <tr>
+                <th>Modificadores</th>
+                <th>Precisa de valor?</th>
+                <th>O que faz?</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>casesensitive, cs</td>
+                <td>não</td>
+                <td>ativa a opção <code>diferenciar maiúsculas de minúsculas</code> para a palavra-chave.</td>
+            </tr>
+            <tr>
+                <td>exact, em, exactmatch</td>
+                <td>não</td>
+                <td>ativa a opção <code>combinação exata</code> para a palavra-chave.</td>
+            </tr>
+            <tr>
+                <td>bound, wb, wordbound</td>
+                <td>não</td>
+                <td>ativa a opção <code>espaçamento de palavras</code> para a palavra-chave.</td>
+            </tr>
+            <tr>
+                <td>shorts, short</td>
+                <td>não</td>
+                <td>aplica palavra-chave apenas para vídeos shorts.</td>
+            </tr>
+            <tr>
+                <td>live, lives</td>
+                <td>não</td>
+                <td>aplica palavra-chave apenas para vídeos ao vivo.</td>
+            </tr>
+            <tr>
+                <td>premiere, upcoming</td>
+                <td>no</td>
+                <td>aplica palavra-chave apenas para vídeos de estreia.</td>
+            </tr>
+            <tr>
+                <td>duration, length, greater</td>
+                <td>sim</td>
+                <td>aplica palavra-chave para vídeos mais longo que o valor em segundos.</td>
+            </tr>
+            <tr>
+                <td>minduration, minlength, shorter</td>
+                <td>sim</td>
+                <td>aplica palavra-chave para vídeos mais curto que o valor em segundos.</td>
+            </tr>
+            <tr>
+                <td>older, old</td>
+                <td>sim</td>
+                <td>aplica palavra-chave para vídeos mais velho que o valor em dias.</td>
+            </tr>
+            <tr>
+                <td>newer, new</td>
+                <td>sim</td>
+                <td>aplica palavra-chave para vídeos mais novo que o valor em dias.</td>
+            </tr>
+            <tr>
+                <td>content, text, ctn, title, tt</td>
+                <td>sim</td>
+                <td>aplica palavra-chave título, comentário ou post contém o valor.</td>
+            </tr>
+            <tr>
+                <td>description, desc</td>
+                <td>sim</td>
+                <td>aplica palavra-chave quando a descrição contém o valor.</td>
+            </tr>
+            <tr>
+                <td>tag, tags</td>
+                <td>sim</td>
+                <td>aplica palavra-chave quando o vídeo contém valor nas tags.</td>
+            </tr>
+            <tr>
+                <td>channel, user, ch</td>
+                <td>sim</td>
+                <td>aplica palavra-chave para canais que são o valor.</td>
+            </tr>
+            <tr>
+                <td>video, isvideo</td>
+                <td>não</td>
+                <td>aplica palavra-chave se o contéudo é vídeo.</td>
+            </tr>
+            <tr>
+                <td>comment, iscomment</td>
+                <td>não</td>
+                <td>aplica palavra-chave se o contéudo é comentário.</td>
+            </tr>
+            <tr>
+                <td>post, ispost</td>
+                <td>não</td>
+                <td>aplica palavra-chave se o contéudo é post.</td>
+            </tr>
+            <tr>
+                <td>isplaylistvideo, pv</td>
+                <td>não</td>
+                <td>aplica palavra-chave se o contéudo é de uma playlist.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p>
+            <b>Modifcadores negativos</b>: <br>
+           Vai fazer o <b>oposto</b> do modificador, adicione um <code>!</code> (exclamação) antes do modificador para ficar negativo. (Exemplos abaixo)<br>
+        </p>
+
+        <h2>Exemplos:</h2>
+        <p>
+            <code>laranja, <span>${cs}</span> banana, maçã</code>: a palavra-chave <code>banana</code> vai <code>diferenciar maiúsculas de minúsculas</code>.<br>
+            ❌: <code>coma mais <span>BANANA</span></code> - não bloqueado. <br>
+            ✅: <code><span>banana</span> é minha fruta favorita</code> - bloqueado. <br><br>
+
+            <code>laranja, <span>${!cs}</span> banana, maçã</code>: a palavra-chave <code>banana</code> <b>não</b> vai <code>diferenciar maiúsculas de minúsculas</code>.<br>
+            ✅: <code>coma mais <span>BANANA</span></code> - bloqueado. <br>
+            ✅: <code><span>banana</span> é minha fruta favorita</code> - bloqueado. <br><br>
+
+            <code><span>${ch: canalRuim001 }</span> banana</code>: vai bloquear conteúdo que contém <code>banana</code> <b>e</b> é do canal <code>canalRuim001</code>.<br>
+            <code><span>${!ch: canalRuim001 }</span> banana</code>: vai bloquear conteúdo que contém <code>banana</code> <b>e <u>não</u></b> é do canal <code>canalRuim001</code>.<br>
+        </p>
+        <h2>Exemplos para bloqueadores de canais:</h2>
+        <p>
+            <code>canalRuim001</code>: vai bloquear contéudo do canal <code>canalRuim001</code>.<br>
+            <code><span>!</span>canalRuim001</code>: vai bloquear conteúdo que <b>não</b> é do <code>canalRuim001</code><br>
+            <code><span>${content: banana }</span> canalRuim001</code>: vai bloquear conteúdo do canal <code>canalRuim001</code> <b>e</b> que o conteúdo contenha <code>banana</code>.<br>
+            <code><span>${!content: banana }</span> canalRuim001</code>: vai bloquear conteúdo do canal <code>canalRuim001</code>  <b>e</b> que o conteúdo <b><u>não</u></b> tenha <code>banana</code>.<br>
+            <code><span>${content: banana }</span> <span>${!ctn: maçã }</span> canalRuim001</code>: vai bloquear conteúdo do canal <code>canalRuim001</code> <b>e</b> que conteúdo tenha <code>banana</code> <b>e</b> <b><u>não</u></b> tenha <code>maçã</code>.<br>
+        </p>
+
+        <p><b>Você pode usar regex nos modificadores também.</b></p>
+        <p><code><span>${ch: AlgumCanal}</span> <span class="regex">/(receita|tutorial)/i</span></code>: bloquear conteúdo do canal <code>AlgumCanal</code> que contenha <code>receita</code> ou <code>tutorial</code>.</p>
+        
+        <h2>Bom Bloqueio!</h2>
+
+        <div class="div"></div>
+
+        <button class="back-to-options">Voltar as Opções</button>
+
+    </div>
+    <script src="../../../js/utilities/page-features.js"></script>
+    <script src="../../../js/options/doc.js"></script>
+</body>
+</html>
